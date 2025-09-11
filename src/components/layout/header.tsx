@@ -10,7 +10,6 @@ const getTitleForPath = (path: string): string => {
   if (path.startsWith('/orders')) return 'Orders';
   if (path.startsWith('/products')) return 'Products';
   if (path.startsWith('/customers')) return 'Customers';
-  if (path.startsWith('/assistant')) return 'AI Assistant';
   if (path.startsWith('/dashboard')) return 'Dashboard';
   return 'Dashboard';
 };

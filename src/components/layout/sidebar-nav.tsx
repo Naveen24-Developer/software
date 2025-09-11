@@ -13,7 +13,6 @@ import {
   ShoppingCart,
   ChefHat,
   Users,
-  Sparkles,
 } from 'lucide-react';
 
 const navItems = [
@@ -22,7 +21,6 @@ const navItems = [
   { href: '/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/products', label: 'Products', icon: ChefHat },
   { href: '/customers', label: 'Customers', icon: Users },
-  { href: '/assistant', label: 'AI Assistant', icon: Sparkles },
 ];
 
 export default function SidebarNav() {
