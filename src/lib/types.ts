@@ -23,3 +23,8 @@ export type Order = {
   totalAmount: number;
   status: 'Active' | 'Returned' | 'Cancelled';
 };
+
+export type Vehicle = {
+  id: string;
+  number: string;
+};

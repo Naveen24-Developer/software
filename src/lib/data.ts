@@ -1,4 +1,4 @@
-import type { Customer, Product, Order } from './types';
+import type { Customer, Product, Order, Vehicle } from './types';
 
 export const mockCustomers: Customer[] = [
   { id: '1', name: 'Alice Johnson', phone: '555-0101', address: '123 Maple St, Springfield', createdAt: '2023-01-15' },
@@ -24,4 +24,10 @@ export const mockOrders: Order[] = [
   { id: 'ORD004', customerName: 'Diana Prince', deliveryDate: '2023-10-04', returnDate: '2023-10-09', totalAmount: 88.20, status: 'Active' },
   { id: 'ORD005', customerName: 'Alice Johnson', deliveryDate: '2023-10-05', returnDate: '2023-10-10', totalAmount: 15.00, status: 'Cancelled' },
   { id: 'ORD006', customerName: 'Ethan Hunt', deliveryDate: '2023-10-06', returnDate: '2023-10-12', totalAmount: 150.00, status: 'Active' },
+];
+
+export const mockVehicles: Vehicle[] = [
+  { id: '1', number: 'MH 12 AB 1234' },
+  { id: '2', number: 'MH 12 CD 5678' },
+  { id: '3', number: 'MH 14 EF 9012' },
 ];

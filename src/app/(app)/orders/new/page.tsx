@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Trash2 } from 'lucide-react';
-import { mockCustomers, mockProducts } from '@/lib/data';
+import { mockCustomers, mockProducts, mockVehicles } from '@/lib/data';
+import AddCustomerDialog from './add-customer-dialog';
 
 export default function CreateOrderPage() {
   return (
@@ -18,17 +19,20 @@ export default function CreateOrderPage() {
             <CardTitle>Customer</CardTitle>
             <CardDescription>Select an existing customer or add a new one.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a customer" />
-              </SelectTrigger>
-              <SelectContent>
-                {mockCustomers.map(customer => (
-                  <SelectItem key={customer.id} value={customer.id}>{customer.name} - {customer.phone}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <CardContent className="flex items-center gap-4">
+            <div className="flex-1">
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a customer" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockCustomers.map(customer => (
+                    <SelectItem key={customer.id} value={customer.id}>{customer.name} - {customer.phone}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <AddCustomerDialog />
           </CardContent>
         </Card>
 
@@ -88,16 +92,25 @@ export default function CreateOrderPage() {
               <Input id="return-date" type="date" />
             </div>
             <div className="md:col-span-2 space-y-2">
-               <Label htmlFor="address">Delivery Address</Label>
+               <Label htmlFor="address">Delivery Address *</Label>
               <Textarea id="address" placeholder="Enter delivery address" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="vehicle">Vehicle Number</Label>
-              <Input id="vehicle" placeholder="e.g., MH 12 AB 1234" />
-            </div>
              <div className="space-y-2">
+              <Label htmlFor="vehicle">Vehicle Number *</Label>
+               <Select>
+                <SelectTrigger id="vehicle">
+                  <SelectValue placeholder="Select a vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockVehicles.map(vehicle => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>{vehicle.number}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+             <div className="md:col-span-2 space-y-2">
               <Label htmlFor="remarks">Remarks</Label>
-              <Input id="remarks" placeholder="Optional notes" />
+              <Textarea id="remarks" placeholder="Add any special instructions or notes here" />
             </div>
           </CardContent>
         </Card>
@@ -111,30 +124,59 @@ export default function CreateOrderPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between">
-              <span>Subtotal</span>
+              <span>Price</span>
               <span>$5.00</span>
             </div>
-            <div className="flex justify-between">
-              <span>Discount</span>
-              <span className="text-primary">-$0.00</span>
+            <div className="space-y-2">
+              <Label htmlFor="discount-type">Discount Type</Label>
+              <Select>
+                <SelectTrigger id="discount-type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fixed">Fixed</SelectItem>
+                  <SelectItem value="percentage">Percentage</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="flex justify-between">
-              <span>Delivery Charge</span>
-              <span>$2.00</span>
+             <div className="space-y-2">
+              <Label htmlFor="discount-value">Discount (₹)</Label>
+              <Input id="discount-value" type="number" placeholder="0.00" />
+            </div>
+             <div className="flex justify-between text-muted-foreground">
+              <span>Discount Amount</span>
+              <span>-$0.00</span>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="delivery-charge">Delivery Charge (₹)</Label>
+              <Input id="delivery-charge" type="number" placeholder="0.00" />
             </div>
             <Separator />
             <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span>$7.00</span>
+              <span>$5.00</span>
             </div>
             <Separator />
             <div className="space-y-2">
-              <Label htmlFor="initial-paid">Initial Paid</Label>
+              <Label htmlFor="payment-method">Payment Method *</Label>
+               <Select>
+                <SelectTrigger id="payment-method">
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Cash</SelectItem>
+                  <SelectItem value="card">Card</SelectItem>
+                  <SelectItem value="online">Online</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="initial-paid">Initial Amount (₹)</Label>
               <Input id="initial-paid" type="number" placeholder="0.00" />
             </div>
             <div className="flex justify-between font-semibold">
               <span>Remaining Amount</span>
-              <span>$7.00</span>
+              <span>$5.00</span>
             </div>
           </CardContent>
           <CardFooter>
