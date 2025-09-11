@@ -80,7 +80,7 @@ export default function OrdersPage() {
                   <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{order.deliveryDate}</TableCell>
-                <TableCell className="text-right">${order.totalAmount.toFixed(2)}</TableCell>
+                <TableCell className="text-right">₹{order.totalAmount.toFixed(2)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

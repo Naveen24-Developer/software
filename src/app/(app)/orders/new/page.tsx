@@ -63,7 +63,7 @@ export default function CreateOrderPage() {
               </div>
               <div className="col-span-3">
                 <Label htmlFor="rate">Rate</Label>
-                <Input id="rate" type="text" defaultValue="$5.00 / day" disabled />
+                <Input id="rate" type="text" defaultValue="₹5.00 / day" disabled />
               </div>
               <div className="col-span-1">
                  <Button variant="outline" size="icon">
@@ -125,7 +125,7 @@ export default function CreateOrderPage() {
           <CardContent className="space-y-4">
             <div className="flex justify-between">
               <span>Price</span>
-              <span>$5.00</span>
+              <span>₹5.00</span>
             </div>
             <div className="space-y-2">
               <Label htmlFor="discount-type">Discount Type</Label>
@@ -145,7 +145,7 @@ export default function CreateOrderPage() {
             </div>
              <div className="flex justify-between text-muted-foreground">
               <span>Discount Amount</span>
-              <span>-$0.00</span>
+              <span>-₹0.00</span>
             </div>
             <div className="space-y-2">
               <Label htmlFor="delivery-charge">Delivery Charge (₹)</Label>
@@ -154,7 +154,7 @@ export default function CreateOrderPage() {
             <Separator />
             <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span>$5.00</span>
+              <span>₹5.00</span>
             </div>
             <Separator />
             <div className="space-y-2">
@@ -176,7 +176,7 @@ export default function CreateOrderPage() {
             </div>
             <div className="flex justify-between font-semibold">
               <span>Remaining Amount</span>
-              <span>$5.00</span>
+              <span>₹5.00</span>
             </div>
           </CardContent>
           <CardFooter>

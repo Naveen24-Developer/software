@@ -30,7 +30,7 @@ export default function ProductsPage() {
             <CardContent className="p-4">
               <CardTitle className="text-lg font-semibold mb-2">{product.name}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                <span className="font-bold text-foreground">${product.rate.toFixed(2)}</span> / {product.rate_unit}
+                <span className="font-bold text-foreground">₹{product.rate.toFixed(2)}</span> / {product.rate_unit}
               </p>
             </CardContent>
             <CardFooter className="p-4 pt-0">
