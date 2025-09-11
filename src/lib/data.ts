@@ -1,0 +1,27 @@
+import type { Customer, Product, Order } from './types';
+
+export const mockCustomers: Customer[] = [
+  { id: '1', name: 'Alice Johnson', phone: '555-0101', address: '123 Maple St, Springfield', createdAt: '2023-01-15' },
+  { id: '2', name: 'Bob Smith', phone: '555-0102', address: '456 Oak Ave, Shelbyville', createdAt: '2023-02-20' },
+  { id: '3', name: 'Charlie Brown', phone: '555-0103', address: '789 Pine Ln, Capital City', createdAt: '2023-03-10' },
+  { id: '4', name: 'Diana Prince', phone: '555-0104', address: '101 Wonder Way, Themyscira', createdAt: '2023-04-05' },
+  { id: '5', name: 'Ethan Hunt', phone: '555-0105', address: '21 Jump Street, Langley', createdAt: '2023-05-12' },
+];
+
+export const mockProducts: Product[] = [
+  { id: '1', name: "Chef's Knife", rate: 5, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/knife/400/300', imageHint: 'chef knife' },
+  { id: '2', name: 'Cutting Board', rate: 2, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/board/400/300', imageHint: 'cutting board' },
+  { id: '3', name: 'Mixing Bowl Set', rate: 3, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/bowl/400/300', imageHint: 'mixing bowl' },
+  { id: '4', name: 'Measuring Spoons', rate: 1, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/spoons/400/300', imageHint: 'measuring spoons' },
+  { id: '5', name: 'Frying Pan', rate: 7, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/pan/400/300', imageHint: 'frying pan' },
+  { id: '6', name: 'Stockpot', rate: 8, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/stockpot/400/300', imageHint: 'stock pot' },
+];
+
+export const mockOrders: Order[] = [
+  { id: 'ORD001', customerName: 'Alice Johnson', deliveryDate: '2023-10-01', returnDate: '2023-10-05', totalAmount: 25.50, status: 'Returned' },
+  { id: 'ORD002', customerName: 'Bob Smith', deliveryDate: '2023-10-02', returnDate: '2023-10-07', totalAmount: 45.00, status: 'Active' },
+  { id: 'ORD003', customerName: 'Charlie Brown', deliveryDate: '2023-10-03', returnDate: '2023-10-04', totalAmount: 12.75, status: 'Returned' },
+  { id: 'ORD004', customerName: 'Diana Prince', deliveryDate: '2023-10-04', returnDate: '2023-10-09', totalAmount: 88.20, status: 'Active' },
+  { id: 'ORD005', customerName: 'Alice Johnson', deliveryDate: '2023-10-05', returnDate: '2023-10-10', totalAmount: 15.00, status: 'Cancelled' },
+  { id: 'ORD006', customerName: 'Ethan Hunt', deliveryDate: '2023-10-06', returnDate: '2023-10-12', totalAmount: 150.00, status: 'Active' },
+];
