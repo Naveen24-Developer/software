@@ -36,7 +36,7 @@ const formSchema = z.object({
   customerId: z.string().min(1, 'Customer is required'),
   items: z.array(orderItemSchema).min(1, 'At least one item is required'),
   deliveryAddress: z.string().min(1, 'Delivery address is required'),
-  useHomeDelivery: z.boolean(),
+  pickupRequired: z.boolean(),
   vehicleId: z.string().optional(),
   remarks: z.string().optional(),
   discountType: z.enum(['fixed', 'percentage']).optional(),
@@ -62,7 +62,7 @@ export default function CreateOrderPage() {
       customerId: '',
       items: [],
       deliveryAddress: '',
-      useHomeDelivery: false,
+      pickupRequired: true,
       vehicleId: '',
       remarks: '',
       discountType: 'fixed',
@@ -306,14 +306,14 @@ export default function CreateOrderPage() {
             <div className="flex items-center space-x-2">
               <Controller
                 control={form.control}
-                name="useHomeDelivery"
+                name="pickupRequired"
                 render={({ field }) => (
-                   <Switch id="home-delivery" checked={field.value} onCheckedChange={field.onChange} />
+                   <Switch id="pickup-required" checked={field.value} onCheckedChange={field.onChange} />
                 )}
               />
-              <Label htmlFor="home-delivery">Home Delivery</Label>
+              <Label htmlFor="pickup-required">Pickup Required</Label>
             </div>
-            {form.watch('useHomeDelivery') && (
+            {form.watch('pickupRequired') && (
               <div>
                 <Label htmlFor="vehicle">Vehicle Number</Label>
                  <Controller
@@ -375,7 +375,7 @@ export default function CreateOrderPage() {
               <span>Discount Amount</span>
               <span>-₹{priceDetails.discountAmount.toFixed(2)}</span>
             </div>
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label>Delivery Charge (₹)</Label>
               <Input type="number" placeholder="0.00" {...form.register('deliveryCharge')} />
             </div>
@@ -401,7 +401,7 @@ export default function CreateOrderPage() {
                     </Select>
                   )}
                 />
-                 {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive">{form.formstate.errors.paymentMethod.message}</p>}
+                 {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive">{form.formState.errors.paymentMethod.message}</p>}
             </div>
             <div className="space-y-2">
               <Label>Initial Amount (₹)</Label>
