@@ -129,11 +129,6 @@ export default function ProductsPage() {
                   Stock: <span className="font-bold text-foreground">{product.quantity}</span>
                 </p>
               </CardContent>
-               <CardFooter className="p-4 pt-0">
-                 <Button variant="outline" className="w-full" onClick={() => handleOpenForm(product)}>
-                  Edit Product
-                </Button>
-              </CardFooter>
             </Card>
           ))}
         </div>
