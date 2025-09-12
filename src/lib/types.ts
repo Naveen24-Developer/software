@@ -9,11 +9,20 @@ export type Customer = {
 };
 
 export type Product = {
-  id: string;
+  id:string;
   name: string;
   quantity: number;
   rate: number;
   rate_unit: 'day' | 'hour' | 'month';
+};
+
+export type OrderItem = {
+  id: string;
+  productId: string;
+  quantity: number;
+  rate: number;
+  deliveryDate: string;
+  returnDate: string;
 };
 
 export type Order = {
