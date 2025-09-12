@@ -56,7 +56,7 @@ export default function CreateOrderPage() {
   const [isCustomerPopoverOpen, setIsCustomerPopoverOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [router] = useRouter();
+  const router = useRouter();
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -318,7 +318,7 @@ export default function CreateOrderPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium">₹{((watchItems[index].quantity || 0) * (watchItems[index].rentRate || 0) * (watchItems[index].numberOfDays || 0)).toFixed(2)}</p>
+                      <p className="font-medium">₹{((watchItems[index].quantity || 0) * (Number(watchItems[index].rentRate) || 0) * (watchItems[index].numberOfDays || 0)).toFixed(2)}</p>
                       <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8">
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -461,7 +461,3 @@ export default function CreateOrderPage() {
     </form>
   );
 }
-
-    
-
-    
