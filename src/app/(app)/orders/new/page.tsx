@@ -94,15 +94,16 @@ export default function CreateOrderPage() {
     }, 0);
 
     let discountAmount = 0;
+    const discountVal = Number(watchDiscountValue) || 0;
     if (watchDiscountType === 'fixed') {
-      discountAmount = watchDiscountValue || 0;
+      discountAmount = discountVal;
     } else if (watchDiscountType === 'percentage') {
-      discountAmount = price * ((watchDiscountValue || 0) / 100);
+      discountAmount = price * (discountVal / 100);
     }
     
-    const deliveryCharge = watchUseHomeDelivery ? (watchDeliveryCharge || 0) : 0;
+    const deliveryCharge = watchUseHomeDelivery ? (Number(watchDeliveryCharge) || 0) : 0;
     const total = price - discountAmount + deliveryCharge;
-    const remainingAmount = total - (watchInitialPaid || 0);
+    const remainingAmount = total - (Number(watchInitialPaid) || 0);
 
     return { price, discountAmount, deliveryCharge, total, remainingAmount };
   }, [watchItems, products, watchDiscountType, watchDiscountValue, watchDeliveryCharge, watchInitialPaid, watchUseHomeDelivery]);
