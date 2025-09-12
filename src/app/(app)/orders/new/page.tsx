@@ -109,7 +109,7 @@ export default function CreateOrderPage() {
   useEffect(() => {
     if (selectedCustomer) {
       form.setValue('customerId', selectedCustomer.id);
-      form.setValue('deliveryAddress', selectedč.address || '');
+      form.setValue('deliveryAddress', selectedCustomer.address || '');
     }
   }, [selectedCustomer, form]);
 
