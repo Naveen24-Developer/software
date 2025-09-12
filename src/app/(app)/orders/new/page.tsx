@@ -56,7 +56,7 @@ export default function CreateOrderPage() {
   const [isCustomerPopoverOpen, setIsCustomerPopoverOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const router = useRouter();
+  const [router] = useRouter();
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -314,7 +314,7 @@ export default function CreateOrderPage() {
                     <div>
                       <p className="font-medium">{products.find(p => p.id === watchItems[index].productId)?.name || 'Item not selected'}</p>
                       <p className="text-sm text-muted-foreground">
-                        {watchItems[index].quantity} units x {watchItems[index].numberOfDays} days @ ₹{watchItems[index].rentRate.toFixed(2)}/day
+                        {watchItems[index].quantity} units x {watchItems[index].numberOfDays} days @ ₹{(Number(watchItems[index].rentRate) || 0).toFixed(2)}/day
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -335,7 +335,7 @@ export default function CreateOrderPage() {
         </Card>
         
         <Card>
-          <CardHeader><CardTitle>Delivery & Remarks</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Delivery &amp; Remarks</CardTitle></CardHeader>
           <CardContent className="space-y-4">
              <div>
               <Label htmlFor="address">Delivery Address *</Label>
@@ -461,5 +461,7 @@ export default function CreateOrderPage() {
     </form>
   );
 }
+
+    
 
     
