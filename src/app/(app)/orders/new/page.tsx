@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { differenceInDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Search } from 'lucide-react';
+import { PlusCircle, Trash2, Search, Edit } from 'lucide-react';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
@@ -27,9 +28,9 @@ import { Check } from 'lucide-react';
 const orderItemSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1'),
-  rate: z.coerce.number(),
-  deliveryDate: z.string().min(1, 'Delivery date is required'),
-  returnDate: z.string().min(1, 'Return date is required'),
+  productRate: z.coerce.number(),
+  rentRate: z.coerce.number().min(0, "Rent rate can't be negative"),
+  numberOfDays: z.coerce.number().min(1, 'Number of days must be at least 1'),
 });
 
 const formSchema = z.object({
@@ -54,6 +55,7 @@ export default function CreateOrderPage() {
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [isCustomerPopoverOpen, setIsCustomerPopoverOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const router = useRouter();
 
   const form = useForm<OrderFormValues>({
@@ -73,7 +75,7 @@ export default function CreateOrderPage() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: 'items',
   });
@@ -86,11 +88,7 @@ export default function CreateOrderPage() {
 
   const priceDetails = useMemo(() => {
     const price = watchItems.reduce((total, item) => {
-      const product = products.find(p => p.id === item.productId);
-      if (!product || !item.deliveryDate || !item.returnDate) return total;
-      
-      const days = differenceInDays(new Date(item.returnDate), new Date(item.deliveryDate)) + 1;
-      const itemTotal = item.quantity * product.rate * (days > 0 ? days : 1);
+      const itemTotal = (item.quantity || 0) * (item.rentRate || 0) * (item.numberOfDays || 0);
       return total + itemTotal;
     }, 0);
 
@@ -107,12 +105,12 @@ export default function CreateOrderPage() {
     const remainingAmount = total - (Number(watchInitialPaid) || 0);
 
     return { price, discountAmount, deliveryCharge, total, remainingAmount };
-  }, [watchItems, products, watchDiscountType, watchDiscountValue, watchDeliveryCharge, watchInitialPaid]);
+  }, [watchItems, watchDiscountType, watchDiscountValue, watchDeliveryCharge, watchInitialPaid]);
   
   useEffect(() => {
     if (selectedCustomer) {
       form.setValue('customerId', selectedCustomer.id);
-      form.setValue('deliveryAddress', selectedCustomer.address);
+      form.setValue('deliveryAddress', selectedCustomer.address || '');
     }
   }, [selectedCustomer, form]);
 
@@ -131,9 +129,23 @@ export default function CreateOrderPage() {
     append({
       productId: '',
       quantity: 1,
-      rate: 0,
-      deliveryDate: format(new Date(), 'yyyy-MM-dd'),
-      returnDate: format(new Date(), 'yyyy-MM-dd'),
+      productRate: 0,
+      rentRate: 0,
+      numberOfDays: 1,
+    });
+    setEditingIndex(fields.length);
+  };
+  
+  const handleEditItem = (index: number) => {
+    setEditingIndex(index);
+  }
+
+  const handleUpdateItem = (index: number) => {
+    // Manually trigger validation for the specific item
+    form.trigger(`items.${index}`).then(isValid => {
+      if (isValid) {
+        setEditingIndex(null);
+      }
     });
   };
 
@@ -143,8 +155,8 @@ export default function CreateOrderPage() {
     const newOrder: Order = {
       id: `ORD${(mockOrders.length + 1).toString().padStart(3, '0')}`,
       customerName: selectedCustomer?.name || 'Unknown',
-      deliveryDate: values.items[0]?.deliveryDate || format(new Date(), 'yyyy-MM-dd'),
-      returnDate: values.items[0]?.returnDate || format(new Date(), 'yyyy-MM-dd'),
+      deliveryDate: format(new Date(), 'yyyy-MM-dd'), // This can be adjusted
+      returnDate: format(new Date(), 'yyyy-MM-dd'), // This can be adjusted
       totalAmount: priceDetails.total,
       status: 'Active',
     };
@@ -243,60 +255,82 @@ export default function CreateOrderPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                  <div className="md:col-span-2">
-                    <Label>Product *</Label>
-                     <Controller
-                      control={form.control}
-                      name={`items.${index}.productId`}
-                      render={({ field: controllerField }) => (
-                        <Select 
-                          onValueChange={(value) => {
-                            const product = products.find(p => p.id === value);
-                            controllerField.onChange(value);
-                            form.setValue(`items.${index}.rate`, product?.rate || 0);
-                          }} 
-                          defaultValue={controllerField.value}
-                        >
-                          <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
-                          <SelectContent>
-                            {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.productId?.message}</p>}
+              <div key={field.id} className="p-4 border rounded-lg space-y-4">
+                {editingIndex === index ? (
+                  // EDITING VIEW
+                   <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label>Product *</Label>
+                            <Controller
+                                control={form.control}
+                                name={`items.${index}.productId`}
+                                render={({ field: controllerField }) => (
+                                    <Select 
+                                    onValueChange={(value) => {
+                                        const product = products.find(p => p.id === value);
+                                        controllerField.onChange(value);
+                                        form.setValue(`items.${index}.productRate`, product?.rate || 0);
+                                        form.setValue(`items.${index}.rentRate`, product?.rate || 0);
+                                    }} 
+                                    defaultValue={controllerField.value}
+                                    >
+                                    <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
+                                    <SelectContent>
+                                        {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.productId?.message}</p>}
+                        </div>
+                        <div>
+                            <Label>Quantity *</Label>
+                            <Input type="number" {...form.register(`items.${index}.quantity`)} />
+                            {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <Label>Product Rate</Label>
+                            <Input {...form.register(`items.${index}.productRate`)} disabled />
+                        </div>
+                        <div>
+                            <Label>Rent Rate *</Label>
+                            <Input type="number" step="0.01" {...form.register(`items.${index}.rentRate`)} />
+                            {form.formState.errors.items?.[index]?.rentRate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.rentRate?.message}</p>}
+                        </div>
+                        <div>
+                            <Label>No. of Days *</Label>
+                            <Input type="number" {...form.register(`items.${index}.numberOfDays`)} />
+                            {form.formState.errors.items?.[index]?.numberOfDays && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.numberOfDays?.message}</p>}
+                        </div>
+                    </div>
+                    <Button type="button" onClick={() => handleUpdateItem(index)}>Done</Button>
                   </div>
-                  <div>
-                    <Label>Qty *</Label>
-                    <Input type="number" {...form.register(`items.${index}.quantity`)} />
-                     {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
+                ) : (
+                  // READONLY VIEW
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{products.find(p => p.id === watchItems[index].productId)?.name || 'Item not selected'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {watchItems[index].quantity} units x {watchItems[index].numberOfDays} days @ ₹{watchItems[index].rentRate.toFixed(2)}/day
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">₹{((watchItems[index].quantity || 0) * (watchItems[index].rentRate || 0) * (watchItems[index].numberOfDays || 0)).toFixed(2)}</p>
+                      <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} className="h-8 w-8">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <Label>Rate</Label>
-                    <Input {...form.register(`items.${index}.rate`)} disabled />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Delivery Date *</Label>
-                    <Input type="date" {...form.register(`items.${index}.deliveryDate`)} />
-                    {form.formState.errors.items?.[index]?.deliveryDate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.deliveryDate?.message}</p>}
-                  </div>
-                  <div>
-                    <Label>Return Date *</Label>
-                    <Input type="date" {...form.register(`items.${index}.returnDate`)} />
-                    {form.formState.errors.items?.[index]?.returnDate && <p className="text-sm font-medium text-destructive">{form.formstate.errors.items?.[index]?.returnDate?.message}</p>}
-                  </div>
-                </div>
-                 <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} className="absolute top-2 right-2 h-7 w-7">
-                   <Trash2 className="h-4 w-4" />
-                   <span className="sr-only">Remove Item</span>
-                </Button>
+                )}
               </div>
             ))}
-             {form.formState.errors.items && !form.formState.errors.items.root && <p className="text-sm font-medium text-destructive">{form.formState.errors.items.message}</p>}
+             {form.formState.errors.items && !form.formState.errors.items.root && fields.length > 0 && editingIndex === null && <p className="text-sm font-medium text-destructive">{form.formState.errors.items.message}</p>}
           </CardContent>
         </Card>
         
@@ -418,7 +452,7 @@ export default function CreateOrderPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
+            <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting || editingIndex !== null}>
               {form.formState.isSubmitting ? 'Placing Order...' : 'Place Order'}
             </Button>
           </CardFooter>
@@ -427,3 +461,5 @@ export default function CreateOrderPage() {
     </form>
   );
 }
+
+    
