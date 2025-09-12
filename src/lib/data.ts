@@ -1,10 +1,10 @@
 import type { Customer, Product, Order, Vehicle } from './types';
 
 export const mockCustomers: Customer[] = [
-  { id: '1', name: 'Alice Johnson', phone: '555-0101', address: '123 Maple St, Springfield', createdAt: '2023-01-15' },
-  { id: '2', name: 'Bob Smith', phone: '555-0102', address: '456 Oak Ave, Shelbyville', createdAt: '2023-02-20' },
-  { id: '3', name: 'Charlie Brown', phone: '555-0103', address: '789 Pine Ln, Capital City', createdAt: '2023-03-10' },
-  { id: '4', name: 'Diana Prince', phone: '555-0104', address: '101 Wonder Way, Themyscira', createdAt: '2023-04-05' },
+  { id: '1', name: 'Alice Johnson', phone: '555-0101', address: '123 Maple St, Springfield', createdAt: '2023-01-15', referredBy: 'Bob Smith', aadhar: '1234 5678 9012' },
+  { id: '2', name: 'Bob Smith', phone: '555-0102', address: '456 Oak Ave, Shelbyville', createdAt: '2023-02-20', aadhar: '2345 6789 0123' },
+  { id: '3', name: 'Charlie Brown', phone: '555-0103', address: '789 Pine Ln, Capital City', createdAt: '2023-03-10', referredBy: 'Alice Johnson' },
+  { id: '4', name: 'Diana Prince', phone: '555-0104', address: '101 Wonder Way, Themyscira', createdAt: '2023-04-05', aadhar: '4567 8901 2345' },
   { id: '5', name: 'Ethan Hunt', phone: '555-0105', address: '21 Jump Street, Langley', createdAt: '2023-05-12' },
 ];
 

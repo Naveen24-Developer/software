@@ -4,6 +4,8 @@ export type Customer = {
   phone: string;
   address: string;
   createdAt: string;
+  referredBy?: string;
+  aadhar?: string;
 };
 
 export type Product = {
