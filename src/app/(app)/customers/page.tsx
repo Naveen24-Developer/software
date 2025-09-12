@@ -124,7 +124,6 @@ export default function CustomersPage() {
                         <DropdownMenuItem onClick={() => handleOpenDialog(customer)}>
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem>View Rentals</DropdownMenuItem>
                         <DeleteCustomerAlert onDelete={() => handleDeleteCustomer(customer.id)} />
                       </DropdownMenuContent>
                     </DropdownMenu>

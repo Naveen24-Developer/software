@@ -176,7 +176,7 @@ export default function CreateOrderPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    router.push('/orders');
+    router.push('/reports');
   }
 
   return (
