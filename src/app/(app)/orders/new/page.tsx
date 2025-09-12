@@ -89,7 +89,7 @@ export default function CreateOrderPage() {
       if (!product || !item.deliveryDate || !item.returnDate) return total;
       
       const days = differenceInDays(new Date(item.returnDate), new Date(item.deliveryDate)) + 1;
-      const itemTotal = item.quantity * product.rate * days;
+      const itemTotal = item.quantity * product.rate * (days > 0 ? days : 1);
       return total + itemTotal;
     }, 0);
 
@@ -205,7 +205,7 @@ export default function CreateOrderPage() {
               open={isCustomerDialogOpen}
               onOpenChange={setIsCustomerDialogOpen}
             >
-              <Button variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
+              <Button variant="outline" type="button" onClick={() => setIsCustomerDialogOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Customer
               </Button>
             </CustomerFormDialog>
@@ -219,60 +219,64 @@ export default function CreateOrderPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-12 gap-4 items-start p-4 border rounded-lg relative">
-                <div className="col-span-12 md:col-span-4">
-                  <Label>Product *</Label>
-                   <Controller
-                    control={form.control}
-                    name={`items.${index}.productId`}
-                    render={({ field: controllerField }) => (
-                      <Select 
-                        onValueChange={(value) => {
-                          const product = products.find(p => p.id === value);
-                          controllerField.onChange(value);
-                          form.setValue(`items.${index}.rate`, product?.rate || 0);
-                        }} 
-                        defaultValue={controllerField.value}
-                      >
-                        <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
-                        <SelectContent>
-                          {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.productId?.message}</p>}
+              <div key={field.id} className="p-4 border rounded-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                  <div className="md:col-span-2">
+                    <Label>Product *</Label>
+                     <Controller
+                      control={form.control}
+                      name={`items.${index}.productId`}
+                      render={({ field: controllerField }) => (
+                        <Select 
+                          onValueChange={(value) => {
+                            const product = products.find(p => p.id === value);
+                            controllerField.onChange(value);
+                            form.setValue(`items.${index}.rate`, product?.rate || 0);
+                          }} 
+                          defaultValue={controllerField.value}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
+                          <SelectContent>
+                            {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.productId?.message}</p>}
+                  </div>
+                  <div>
+                    <Label>Qty *</Label>
+                    <Input type="number" {...form.register(`items.${index}.quantity`)} />
+                     {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
+                  </div>
+                  <div>
+                    <Label>Rate</Label>
+                    <Input {...form.register(`items.${index}.rate`)} disabled />
+                  </div>
+                  <div>
+                    <Button type="button" variant="destructive" size="sm" onClick={() => remove(index)} className="w-full">
+                       <Trash2 className="mr-2 h-4 w-4" /> Remove
+                    </Button>
+                  </div>
                 </div>
-                <div className="col-span-6 md:col-span-2">
-                  <Label>Qty *</Label>
-                  <Input type="number" {...form.register(`items.${index}.quantity`)} />
-                   {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
-                </div>
-                <div className="col-span-6 md:col-span-2">
-                  <Label>Rate</Label>
-                  <Input {...form.register(`items.${index}.rate`)} disabled />
-                </div>
-                <div className="col-span-6 md:col-span-2">
-                  <Label>Delivery Date *</Label>
-                  <Input type="date" {...form.register(`items.${index}.deliveryDate`)} />
-                  {form.formState.errors.items?.[index]?.deliveryDate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.deliveryDate?.message}</p>}
-                </div>
-                <div className="col-span-6 md:col-span-2">
-                  <Label>Return Date *</Label>
-                  <Input type="date" {...form.register(`items.${index}.returnDate`)} />
-                  {form.formState.errors.items?.[index]?.returnDate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.returnDate?.message}</p>}
-                </div>
-                <div className="col-span-12">
-                   <Button variant="destructive" size="sm" onClick={() => remove(index)}>
-                    <Trash2 className="mr-2 h-4 w-4" /> Remove Item
-                  </Button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Delivery Date *</Label>
+                    <Input type="date" {...form.register(`items.${index}.deliveryDate`)} />
+                    {form.formState.errors.items?.[index]?.deliveryDate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.deliveryDate?.message}</p>}
+                  </div>
+                  <div>
+                    <Label>Return Date *</Label>
+                    <Input type="date" {...form.register(`items.${index}.returnDate`)} />
+                    {form.formState.errors.items?.[index]?.returnDate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.returnDate?.message}</p>}
+                  </div>
                 </div>
               </div>
             ))}
-            <Button variant="outline" className="w-full" onClick={handleAddNewItem}>
+            <Button type="button" variant="outline" className="w-full" onClick={handleAddNewItem}>
               <PlusCircle className="mr-2 h-4 w-4" /> Add Item
             </Button>
-             {form.formState.errors.items && <p className="text-sm font-medium text-destructive">{form.formState.errors.items.message}</p>}
+             {form.formState.errors.items && !form.formState.errors.items.root && <p className="text-sm font-medium text-destructive">{form.formState.errors.items.message}</p>}
           </CardContent>
         </Card>
         
