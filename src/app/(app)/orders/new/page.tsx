@@ -83,7 +83,6 @@ export default function CreateOrderPage() {
   const watchDiscountValue = form.watch('discountValue');
   const watchDeliveryCharge = form.watch('deliveryCharge');
   const watchInitialPaid = form.watch('initialPaid');
-  const watchUseHomeDelivery = form.watch('useHomeDelivery');
 
   const priceDetails = useMemo(() => {
     const price = watchItems.reduce((total, item) => {
@@ -103,12 +102,12 @@ export default function CreateOrderPage() {
       discountAmount = price * (discountVal / 100);
     }
     
-    const deliveryCharge = watchUseHomeDelivery ? (Number(watchDeliveryCharge) || 0) : 0;
+    const deliveryCharge = Number(watchDeliveryCharge) || 0;
     const total = price - discountAmount + deliveryCharge;
     const remainingAmount = total - (Number(watchInitialPaid) || 0);
 
     return { price, discountAmount, deliveryCharge, total, remainingAmount };
-  }, [watchItems, products, watchDiscountType, watchDiscountValue, watchDeliveryCharge, watchInitialPaid, watchUseHomeDelivery]);
+  }, [watchItems, products, watchDiscountType, watchDiscountValue, watchDeliveryCharge, watchInitialPaid]);
   
   useEffect(() => {
     if (selectedCustomer) {
@@ -314,7 +313,7 @@ export default function CreateOrderPage() {
               />
               <Label htmlFor="home-delivery">Home Delivery</Label>
             </div>
-            {watchUseHomeDelivery && (
+            {form.watch('useHomeDelivery') && (
               <div>
                 <Label htmlFor="vehicle">Vehicle Number</Label>
                  <Controller
@@ -376,12 +375,10 @@ export default function CreateOrderPage() {
               <span>Discount Amount</span>
               <span>-₹{priceDetails.discountAmount.toFixed(2)}</span>
             </div>
-            {watchUseHomeDelivery && (
-              <div className="space-y-2">
-                <Label>Delivery Charge (₹)</Label>
-                <Input type="number" placeholder="0.00" {...form.register('deliveryCharge')} />
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>Delivery Charge (₹)</Label>
+              <Input type="number" placeholder="0.00" {...form.register('deliveryCharge')} />
+            </div>
             <Separator />
             <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
@@ -404,7 +401,7 @@ export default function CreateOrderPage() {
                     </Select>
                   )}
                 />
-                 {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive">{form.formState.errors.paymentMethod.message}</p>}
+                 {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive">{form.formstate.errors.paymentMethod.message}</p>}
             </div>
             <div className="space-y-2">
               <Label>Initial Amount (₹)</Label>
