@@ -5,6 +5,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { differenceInDays, format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,8 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Trash2, Search } from 'lucide-react';
-import { mockCustomers, mockProducts, mockVehicles } from '@/lib/data';
-import type { Customer, Product } from '@/lib/types';
+import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
+import type { Customer, Product, Order } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -53,6 +54,7 @@ export default function CreateOrderPage() {
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [isCustomerPopoverOpen, setIsCustomerPopoverOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const router = useRouter();
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -136,10 +138,23 @@ export default function CreateOrderPage() {
     });
   };
 
-  function onSubmit(values: OrderFormValues) {
+  async function onSubmit(values: OrderFormValues) {
     console.log(values);
-    // Here you would typically send the data to your backend
-    alert('Order placed successfully! (Check console for data)');
+    
+    const newOrder: Order = {
+      id: `ORD${(mockOrders.length + 1).toString().padStart(3, '0')}`,
+      customerName: selectedCustomer?.name || 'Unknown',
+      deliveryDate: values.items[0]?.deliveryDate || format(new Date(), 'yyyy-MM-dd'),
+      returnDate: values.items[0]?.returnDate || format(new Date(), 'yyyy-MM-dd'),
+      totalAmount: priceDetails.total,
+      status: 'Active',
+    };
+    mockOrders.unshift(newOrder);
+
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    router.push('/orders');
   }
 
   return (
@@ -301,7 +316,7 @@ export default function CreateOrderPage() {
             </div>
             {watchUseHomeDelivery && (
               <div>
-                <Label htmlFor="vehicle">Vehicle Number *</Label>
+                <Label htmlFor="vehicle">Vehicle Number</Label>
                  <Controller
                   control={form.control}
                   name="vehicleId"
