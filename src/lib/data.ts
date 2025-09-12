@@ -9,22 +9,57 @@ export const mockCustomers: Customer[] = [
 ];
 
 export const mockProducts: Product[] = [
-  { id: '1', name: "Chef's Knife", quantity: 15, rate: 50, rate_unit: 'day' },
-  { id: '2', name: 'Cutting Board', quantity: 30, rate: 20, rate_unit: 'day' },
-  { id: '3', name: 'Mixing Bowl Set', quantity: 20, rate: 35, rate_unit: 'day' },
-  { id: '4', name: 'Measuring Spoons', quantity: 50, rate: 10, rate_unit: 'day' },
-  { id: '5', name: 'Frying Pan', quantity: 25, rate: 75, rate_unit: 'day' },
-  { id: '6', name: 'Stockpot', quantity: 10, rate: 80, rate_unit: 'day' },
+  { id: '1', name: "Chef's Knife", quantity: 15, rate: 150, rate_unit: 'day' },
+  { id: '2', name: 'Cutting Board', quantity: 30, rate: 70, rate_unit: 'day' },
+  { id: '3', name: 'Mixing Bowl Set', quantity: 20, rate: 100, rate_unit: 'day' },
+  { id: '4', name: 'Measuring Spoons', quantity: 50, rate: 50, rate_unit: 'day' },
+  { id: '5', name: 'Frying Pan', quantity: 25, rate: 200, rate_unit: 'day' },
+  { id: '6', name: 'Stockpot', quantity: 10, rate: 250, rate_unit: 'day' },
 ];
 
 export const mockOrders: Order[] = [
-  { id: 'ORD001', customerName: 'Alice Johnson', deliveryDate: '2023-10-01', returnDate: '2023-10-05', totalAmount: 25.50, status: 'Returned' },
-  { id: 'ORD002', customerName: 'Bob Smith', deliveryDate: '2023-10-02', returnDate: '2023-10-07', totalAmount: 45.00, status: 'Active' },
-  { id: 'ORD003', customerName: 'Charlie Brown', deliveryDate: '2023-10-03', returnDate: '2023-10-04', totalAmount: 12.75, status: 'Returned' },
-  { id: 'ORD004', customerName: 'Diana Prince', deliveryDate: '2023-10-04', returnDate: '2023-10-09', totalAmount: 88.20, status: 'Active' },
-  { id: 'ORD005', customerName: 'Alice Johnson', deliveryDate: '2023-10-05', returnDate: '2023-10-10', totalAmount: 15.00, status: 'Cancelled' },
-  { id: 'ORD006', customerName: 'Ethan Hunt', deliveryDate: '2023-10-06', returnDate: '2023-10-12', totalAmount: 150.00, status: 'Active' },
+  {
+    id: 'ORD001',
+    customer: mockCustomers[0],
+    items: [
+      { productId: '1', quantity: 1, productRate: 150, rentRate: 150, numberOfDays: 2 },
+      { productId: '2', quantity: 1, productRate: 70, rentRate: 70, numberOfDays: 2 }
+    ],
+    priceDetails: { price: 440, discountAmount: 0, deliveryCharge: 50, total: 490, remainingAmount: 490 },
+    deliveryAddress: '123 Maple St, Springfield',
+    pickupRequired: true,
+    paymentMethod: 'cash',
+    createdAt: '2023-10-01',
+    status: 'Returned'
+  },
+  {
+    id: 'ORD002',
+    customer: mockCustomers[1],
+    items: [{ productId: '5', quantity: 1, productRate: 200, rentRate: 220, numberOfDays: 3 }],
+    priceDetails: { price: 660, discountAmount: 66, deliveryCharge: 0, total: 594, remainingAmount: 94 },
+    deliveryAddress: '456 Oak Ave, Shelbyville',
+    pickupRequired: false,
+    discountType: 'percentage',
+    discountValue: 10,
+    paymentMethod: 'online',
+    initialPaid: 500,
+    createdAt: '2023-10-02',
+    status: 'Active'
+  },
+   {
+    id: 'ORD003',
+    customer: mockCustomers[2],
+    items: [{ productId: '3', quantity: 5, productRate: 100, rentRate: 100, numberOfDays: 1 }],
+    priceDetails: { price: 500, discountAmount: 0, deliveryCharge: 50, total: 550, remainingAmount: 550 },
+    deliveryAddress: '789 Pine Ln, Capital City',
+    pickupRequired: true,
+    vehicleId: '1',
+    paymentMethod: 'card',
+    createdAt: '2023-10-03',
+    status: 'Cancelled'
+  },
 ];
+
 
 export const mockVehicles: Vehicle[] = [
   { id: '1', number: 'MH 12 AB 1234' },

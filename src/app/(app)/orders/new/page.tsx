@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Trash2, Search, Edit } from 'lucide-react';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
-import type { Customer, Product, Order } from '@/lib/types';
+import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -86,7 +85,7 @@ export default function CreateOrderPage() {
   const watchDeliveryCharge = form.watch('deliveryCharge');
   const watchInitialPaid = form.watch('initialPaid');
 
-  const priceDetails = useMemo(() => {
+  const priceDetails: PriceDetails = useMemo(() => {
     const price = watchItems.reduce((total, item) => {
       const itemTotal = (item.quantity || 0) * (item.rentRate || 0) * (item.numberOfDays || 0);
       return total + itemTotal;
@@ -110,7 +109,7 @@ export default function CreateOrderPage() {
   useEffect(() => {
     if (selectedCustomer) {
       form.setValue('customerId', selectedCustomer.id);
-      form.setValue('deliveryAddress', selectedCustomer.address || '');
+      form.setValue('deliveryAddress', selectedč.address || '');
     }
   }, [selectedCustomer, form]);
 
@@ -150,14 +149,26 @@ export default function CreateOrderPage() {
   };
 
   async function onSubmit(values: OrderFormValues) {
+    if (!selectedCustomer) {
+      form.setError('customerId', { type: 'manual', message: 'Please select a customer.' });
+      return;
+    }
     console.log(values);
     
     const newOrder: Order = {
       id: `ORD${(mockOrders.length + 1).toString().padStart(3, '0')}`,
-      customerName: selectedCustomer?.name || 'Unknown',
-      deliveryDate: format(new Date(), 'yyyy-MM-dd'), // This can be adjusted
-      returnDate: format(new Date(), 'yyyy-MM-dd'), // This can be adjusted
-      totalAmount: priceDetails.total,
+      customer: selectedCustomer,
+      items: values.items as OrderItem[],
+      priceDetails: priceDetails,
+      deliveryAddress: values.deliveryAddress,
+      pickupRequired: values.pickupRequired,
+      vehicleId: values.vehicleId,
+      remarks: values.remarks,
+      discountType: values.discountType,
+      discountValue: values.discountValue,
+      paymentMethod: values.paymentMethod,
+      initialPaid: values.initialPaid,
+      createdAt: new Date().toISOString(),
       status: 'Active',
     };
     mockOrders.unshift(newOrder);
@@ -331,6 +342,7 @@ export default function CreateOrderPage() {
               </div>
             ))}
              {form.formState.errors.items && !form.formState.errors.items.root && fields.length > 0 && editingIndex === null && <p className="text-sm font-medium text-destructive">{form.formState.errors.items.message}</p>}
+             {form.formState.errors.items?.root && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.items.root.message}</p>}
           </CardContent>
         </Card>
         

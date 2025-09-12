@@ -17,20 +17,35 @@ export type Product = {
 };
 
 export type OrderItem = {
-  id: string;
   productId: string;
   quantity: number;
-  rate: number;
-  deliveryDate: string;
-  returnDate: string;
+  productRate: number;
+  rentRate: number;
+  numberOfDays: number;
 };
+
+export type PriceDetails = {
+  price: number;
+  discountAmount: number;
+  deliveryCharge: number;
+  total: number;
+  remainingAmount: number;
+}
 
 export type Order = {
   id: string;
-  customerName: string;
-  deliveryDate: string;
-  returnDate: string;
-  totalAmount: number;
+  customer: Customer;
+  items: OrderItem[];
+  priceDetails: PriceDetails;
+  deliveryAddress: string;
+  pickupRequired: boolean;
+  vehicleId?: string;
+  remarks?: string;
+  discountType?: 'fixed' | 'percentage';
+  discountValue?: number;
+  paymentMethod: string;
+  initialPaid?: number;
+  createdAt: string;
   status: 'Active' | 'Returned' | 'Cancelled';
 };
 

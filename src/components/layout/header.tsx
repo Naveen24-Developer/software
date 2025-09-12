@@ -8,6 +8,7 @@ import { CircleUser } from 'lucide-react';
 const getTitleForPath = (path: string): string => {
   if (path.startsWith('/orders/new')) return 'Create Order';
   if (path.startsWith('/orders')) return 'Orders';
+  if (path.startsWith('/reports')) return 'Reports';
   if (path.startsWith('/products')) return 'Products';
   if (path.startsWith('/customers')) return 'Customers';
   if (path.startsWith('/dashboard')) return 'Dashboard';

@@ -1,3 +1,7 @@
+
+'use client';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -5,6 +9,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { ListFilter, MoreHorizontal, File } from 'lucide-react';
 import { mockOrders } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
+import type { Order } from '@/lib/types';
+import { format } from 'date-fns';
 
 const getStatusVariant = (status: 'Active' | 'Returned' | 'Cancelled'): 'default' | 'secondary' | 'destructive' => {
   switch (status) {
@@ -18,6 +24,8 @@ const getStatusVariant = (status: 'Active' | 'Returned' | 'Cancelled'): 'default
 };
 
 export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>(mockOrders);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center">
@@ -64,7 +72,7 @@ export default function OrdersPage() {
               <TableHead>Order ID</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="hidden md:table-cell">Delivery Date</TableHead>
+              <TableHead className="hidden md:table-cell">Order Date</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
@@ -72,15 +80,15 @@ export default function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockOrders.map((order) => (
+            {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium">{order.id}</TableCell>
-                <TableCell>{order.customerName}</TableCell>
+                <TableCell>{order.customer.name}</TableCell>
                 <TableCell>
                   <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">{order.deliveryDate}</TableCell>
-                <TableCell className="text-right">₹{order.totalAmount.toFixed(2)}</TableCell>
+                <TableCell className="hidden md:table-cell">{format(new Date(order.createdAt), 'PP')}</TableCell>
+                <TableCell className="text-right">₹{order.priceDetails.total.toFixed(2)}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
