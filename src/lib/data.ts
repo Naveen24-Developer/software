@@ -9,12 +9,12 @@ export const mockCustomers: Customer[] = [
 ];
 
 export const mockProducts: Product[] = [
-  { id: '1', name: "Chef's Knife", quantity: 15, rate: 5, rate_unit: 'day' },
-  { id: '2', name: 'Cutting Board', quantity: 30, rate: 2, rate_unit: 'day' },
-  { id: '3', name: 'Mixing Bowl Set', quantity: 20, rate: 3, rate_unit: 'day' },
-  { id: '4', name: 'Measuring Spoons', quantity: 50, rate: 1, rate_unit: 'day' },
-  { id: '5', name: 'Frying Pan', quantity: 25, rate: 7, rate_unit: 'day' },
-  { id: '6', name: 'Stockpot', quantity: 10, rate: 8, rate_unit: 'day' },
+  { id: '1', name: "Chef's Knife", quantity: 15, rate: 50, rate_unit: 'day' },
+  { id: '2', name: 'Cutting Board', quantity: 30, rate: 20, rate_unit: 'day' },
+  { id: '3', name: 'Mixing Bowl Set', quantity: 20, rate: 35, rate_unit: 'day' },
+  { id: '4', name: 'Measuring Spoons', quantity: 50, rate: 10, rate_unit: 'day' },
+  { id: '5', name: 'Frying Pan', quantity: 25, rate: 75, rate_unit: 'day' },
+  { id: '6', name: 'Stockpot', quantity: 10, rate: 80, rate_unit: 'day' },
 ];
 
 export const mockOrders: Order[] = [
