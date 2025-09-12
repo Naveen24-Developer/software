@@ -154,7 +154,6 @@ export default function ProductsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[80px]">Image</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Rent Price</TableHead>
@@ -166,15 +165,6 @@ export default function ProductsPage() {
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product.id}>
-                    <TableCell>
-                      <Image
-                        src={product.imageUrl}
-                        alt={product.name}
-                        width={64}
-                        height={64}
-                        className="rounded-md object-cover"
-                      />
-                    </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>
                        <Badge variant={product.quantity > 0 ? 'secondary': 'destructive'} className={cn(product.quantity > 10 && 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300')}>
