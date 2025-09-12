@@ -164,78 +164,87 @@ export default function CreateOrderPage() {
             <CardTitle>Customer</CardTitle>
             <CardDescription>Select an existing customer or add a new one.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center gap-4">
-             <Controller
-              control={form.control}
-              name="customerId"
-              render={({ field }) => (
-                <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={isCustomerPopoverOpen}
-                      className="w-full justify-between"
-                    >
-                      {selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phone}` : 'Select a customer'}
-                      <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                    <Command>
-                      <CommandInput placeholder="Search customers..." />
-                      <CommandList>
-                        <CommandEmpty>No customer found.</CommandEmpty>
-                        <CommandGroup>
-                          {customers.map((customer) => (
-                            <CommandItem
-                              key={customer.id}
-                              value={`${customer.name} ${customer.phone}`}
-                              onSelect={() => {
-                                setSelectedCustomer(customer);
-                                field.onChange(customer.id);
-                                setIsCustomerPopoverOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  'mr-2 h-4 w-4',
-                                  field.value === customer.id ? 'opacity-100' : 'opacity-0'
-                                )}
-                              />
-                              {customer.name} - {customer.phone}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
-            {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive">{form.formState.errors.customerId.message}</p>}
+          <CardContent className="flex items-start gap-4">
+            <div className="flex-grow">
+              <Controller
+                control={form.control}
+                name="customerId"
+                render={({ field }) => (
+                  <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isCustomerPopoverOpen}
+                        className="w-full justify-between"
+                      >
+                        {selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phone}` : 'Select a customer'}
+                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search customers..." />
+                        <CommandList>
+                          <CommandEmpty>No customer found.</CommandEmpty>
+                          <CommandGroup>
+                            {customers.map((customer) => (
+                              <CommandItem
+                                key={customer.id}
+                                value={`${customer.name} ${customer.phone}`}
+                                onSelect={() => {
+                                  setSelectedCustomer(customer);
+                                  field.onChange(customer.id);
+                                  setIsCustomerPopoverOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    field.value === customer.id ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
+                                {customer.name} - {customer.phone}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+              {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
+            </div>
             
             <CustomerFormDialog 
               onSave={handleSaveCustomer}
               open={isCustomerDialogOpen}
               onOpenChange={setIsCustomerDialogOpen}
             >
-              <Button variant="outline" type="button" onClick={() => setIsCustomerDialogOpen(true)}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Customer
+              <Button size="icon" type="button" onClick={() => setIsCustomerDialogOpen(true)}>
+                <PlusCircle className="h-4 w-4" />
+                <span className="sr-only">Add Customer</span>
               </Button>
             </CustomerFormDialog>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Rental Items</CardTitle>
-            <CardDescription>Add utensils to the order.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Rental Items</CardTitle>
+              <CardDescription>Add utensils to the order.</CardDescription>
+            </div>
+            <Button size="icon" type="button" onClick={handleAddNewItem}>
+                <PlusCircle className="h-4 w-4" />
+                <span className="sr-only">Add Item</span>
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+              <div key={field.id} className="p-4 border rounded-lg space-y-4 relative">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                   <div className="md:col-span-2">
                     <Label>Product *</Label>
                      <Controller
@@ -268,11 +277,6 @@ export default function CreateOrderPage() {
                     <Label>Rate</Label>
                     <Input {...form.register(`items.${index}.rate`)} disabled />
                   </div>
-                  <div>
-                    <Button type="button" variant="destructive" size="sm" onClick={() => remove(index)} className="w-full">
-                       <Trash2 className="mr-2 h-4 w-4" /> Remove
-                    </Button>
-                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -283,14 +287,15 @@ export default function CreateOrderPage() {
                   <div>
                     <Label>Return Date *</Label>
                     <Input type="date" {...form.register(`items.${index}.returnDate`)} />
-                    {form.formState.errors.items?.[index]?.returnDate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.returnDate?.message}</p>}
+                    {form.formState.errors.items?.[index]?.returnDate && <p className="text-sm font-medium text-destructive">{form.formstate.errors.items?.[index]?.returnDate?.message}</p>}
                   </div>
                 </div>
+                 <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} className="absolute top-2 right-2 h-7 w-7">
+                   <Trash2 className="h-4 w-4" />
+                   <span className="sr-only">Remove Item</span>
+                </Button>
               </div>
             ))}
-            <Button type="button" variant="outline" className="w-full" onClick={handleAddNewItem}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Item
-            </Button>
              {form.formState.errors.items && !form.formState.errors.items.root && <p className="text-sm font-medium text-destructive">{form.formState.errors.items.message}</p>}
           </CardContent>
         </Card>
