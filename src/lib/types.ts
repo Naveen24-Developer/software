@@ -14,8 +14,6 @@ export type Product = {
   quantity: number;
   rate: number;
   rate_unit: 'day' | 'hour' | 'month';
-  imageUrl: string;
-  imageHint: string;
 };
 
 export type Order = {

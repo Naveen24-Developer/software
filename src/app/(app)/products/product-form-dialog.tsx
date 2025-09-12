@@ -24,8 +24,6 @@ const formSchema = z.object({
   quantity: z.coerce.number().int().min(0, 'Quantity must be a positive number'),
   rate: z.coerce.number().min(0, 'Rate must be a positive number'),
   rate_unit: z.enum(['day', 'hour', 'month']),
-  imageUrl: z.string().url('Must be a valid URL').optional(),
-  imageHint: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -52,8 +50,6 @@ export default function ProductFormDialog({
       quantity: 0,
       rate: 0,
       rate_unit: 'day',
-      imageUrl: '',
-      imageHint: '',
     },
   });
 
@@ -65,8 +61,6 @@ export default function ProductFormDialog({
           quantity: product.quantity,
           rate: product.rate,
           rate_unit: product.rate_unit,
-          imageUrl: product.imageUrl,
-          imageHint: product.imageHint,
         });
       } else {
         form.reset({
@@ -74,20 +68,13 @@ export default function ProductFormDialog({
           quantity: 0,
           rate: 0,
           rate_unit: 'day',
-          imageUrl: '',
-          imageHint: '',
         });
       }
     }
   }, [product, open, form]);
 
   const onSubmit = (values: ProductFormValues) => {
-    const dataToSave = {
-        ...values,
-        imageUrl: values.imageUrl || `https://picsum.photos/seed/${values.name.replace(/\s/g, '-')}/400/300`,
-        imageHint: values.imageHint || values.name.toLowerCase().split(' ').slice(0,2).join(' '),
-    };
-    onSave(dataToSave, product?.id);
+    onSave(values, product?.id);
     onOpenChange(false);
   };
 
