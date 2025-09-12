@@ -11,6 +11,7 @@ export type Customer = {
 export type Product = {
   id: string;
   name: string;
+  quantity: number;
   rate: number;
   rate_unit: 'day' | 'hour' | 'month';
   imageUrl: string;

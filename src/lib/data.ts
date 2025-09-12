@@ -9,12 +9,12 @@ export const mockCustomers: Customer[] = [
 ];
 
 export const mockProducts: Product[] = [
-  { id: '1', name: "Chef's Knife", rate: 5, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/knife/400/300', imageHint: 'chef knife' },
-  { id: '2', name: 'Cutting Board', rate: 2, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/board/400/300', imageHint: 'cutting board' },
-  { id: '3', name: 'Mixing Bowl Set', rate: 3, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/bowl/400/300', imageHint: 'mixing bowl' },
-  { id: '4', name: 'Measuring Spoons', rate: 1, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/spoons/400/300', imageHint: 'measuring spoons' },
-  { id: '5', name: 'Frying Pan', rate: 7, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/pan/400/300', imageHint: 'frying pan' },
-  { id: '6', name: 'Stockpot', rate: 8, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/stockpot/400/300', imageHint: 'stock pot' },
+  { id: '1', name: "Chef's Knife", quantity: 15, rate: 5, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/knife/400/300', imageHint: 'chef knife' },
+  { id: '2', name: 'Cutting Board', quantity: 30, rate: 2, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/board/400/300', imageHint: 'cutting board' },
+  { id: '3', name: 'Mixing Bowl Set', quantity: 20, rate: 3, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/bowl/400/300', imageHint: 'mixing bowl' },
+  { id: '4', name: 'Measuring Spoons', quantity: 50, rate: 1, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/spoons/400/300', imageHint: 'measuring spoons' },
+  { id: '5', name: 'Frying Pan', quantity: 25, rate: 7, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/pan/400/300', imageHint: 'frying pan' },
+  { id: '6', name: 'Stockpot', quantity: 10, rate: 8, rate_unit: 'day', imageUrl: 'https://picsum.photos/seed/stockpot/400/300', imageHint: 'stock pot' },
 ];
 
 export const mockOrders: Order[] = [
