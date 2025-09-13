@@ -396,9 +396,9 @@ export default function CreateOrderPage() {
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Price</span>
+            <CardContent className="space-y-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
                 <span>₹{priceDetails.price.toFixed(2)}</span>
               </div>
               
@@ -410,61 +410,70 @@ export default function CreateOrderPage() {
                           name="discountType"
                           render={({ field }) => (
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <SelectTrigger className="w-2/3"><SelectValue placeholder="Type" /></SelectTrigger>
-                          <SelectContent>
-                              <SelectItem value="fixed">₹</SelectItem>
-                              <SelectItem value="percentage">%</SelectItem>
-                          </SelectContent>
+                            <SelectTrigger className="w-2/3 h-8"><SelectValue placeholder="Type" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="fixed">₹ (Fixed)</SelectItem>
+                                <SelectItem value="percentage">% (Percent)</SelectItem>
+                            </SelectContent>
                           </Select>
                       )}
                       />
-                      <Input type="number" placeholder="0" className="w-1/3" {...form.register('discountValue')} />
+                      <Input type="number" placeholder="0" className="w-1/3 h-8" {...form.register('discountValue')} />
                   </div>
               </div>
 
-               <div className="flex justify-between text-muted-foreground">
-                <span>Discount Amount</span>
-                <span>-₹{priceDetails.discountAmount.toFixed(2)}</span>
+               <div className="flex justify-between">
+                <span className="text-muted-foreground">Discount Amount</span>
+                <span className="text-destructive">- ₹{priceDetails.discountAmount.toFixed(2)}</span>
               </div>
               
                <div className="flex items-center justify-between">
                 <Label className="text-muted-foreground">Delivery Charge</Label>
-                <Input type="number" placeholder="0.00" className="w-1/2" {...form.register('deliveryCharge')} />
+                <div className="w-1/2">
+                  <Input type="number" placeholder="0.00" className="h-8 text-right" {...form.register('deliveryCharge')} />
+                </div>
               </div>
 
               <Separator />
-              <div className="flex justify-between font-bold text-lg">
+
+              <div className="flex justify-between font-semibold text-base">
                 <span>Total</span>
                 <span>₹{priceDetails.total.toFixed(2)}</span>
               </div>
+              
               <Separator />
-              
-              <div className="flex items-center justify-between">
-                <Label className="text-muted-foreground">Payment Method *</Label>
-                 <Controller
-                    control={form.control}
-                    name="paymentMethod"
-                    render={({ field }) => (
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <SelectTrigger className="w-1/2"><SelectValue placeholder="Select" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cash">Cash</SelectItem>
-                          <SelectItem value="card">Card</SelectItem>
-                          <SelectItem value="online">Online</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-              </div>
-              {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive">{form.formState.errors.paymentMethod.message}</p>}
-              
-              <div className="flex items-center justify-between">
-                <Label className="text-muted-foreground">Initial Paid</Label>
-                <Input type="number" placeholder="0.00" className="w-1/2" {...form.register('initialPaid')}/>
-              </div>
-              <div className="flex justify-between font-semibold">
-                <span>Remaining Amount</span>
-                <span>₹{priceDetails.remainingAmount.toFixed(2)}</span>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Payment Method *</Label>
+                  <Controller
+                      control={form.control}
+                      name="paymentMethod"
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger className="w-1/2 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="card">Card</SelectItem>
+                            <SelectItem value="online">Online</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                </div>
+                {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive text-right -mt-2">{form.formState.errors.paymentMethod.message}</p>}
+                
+                <div className="flex items-center justify-between">
+                  <Label>Initial Paid</Label>
+                  <div className="w-1/2">
+                    <Input type="number" placeholder="0.00" className="h-9 text-right" {...form.register('initialPaid')}/>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between font-semibold text-base bg-secondary/50 p-2 rounded-md">
+                  <span>Remaining</span>
+                  <span>₹{priceDetails.remainingAmount.toFixed(2)}</span>
+                </div>
               </div>
             </CardContent>
             <CardFooter>
@@ -478,3 +487,5 @@ export default function CreateOrderPage() {
     </form>
   );
 }
+
+    
