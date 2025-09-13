@@ -404,13 +404,13 @@ export default function CreateOrderPage() {
               
               <div className="flex items-center justify-between">
                   <Label className="text-muted-foreground">Discount</Label>
-                   <div className="flex items-center gap-2 w-1/2">
+                   <div className="flex items-center gap-2 w-3/5">
                       <Controller
                           control={form.control}
                           name="discountType"
                           render={({ field }) => (
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger className="w-2/3 h-8"><SelectValue placeholder="Type" /></SelectTrigger>
+                            <SelectTrigger className="w-full h-8"><SelectValue placeholder="Type" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="fixed">₹ (Fixed)</SelectItem>
                                 <SelectItem value="percentage">% (Percent)</SelectItem>
@@ -418,7 +418,7 @@ export default function CreateOrderPage() {
                           </Select>
                       )}
                       />
-                      <Input type="number" placeholder="0" className="w-1/3 h-8" {...form.register('discountValue')} />
+                      <Input type="number" placeholder="0" className="w-full h-8" {...form.register('discountValue')} />
                   </div>
               </div>
 
@@ -429,8 +429,8 @@ export default function CreateOrderPage() {
               
                <div className="flex items-center justify-between">
                 <Label className="text-muted-foreground">Delivery Charge</Label>
-                <div className="w-1/2">
-                  <Input type="number" placeholder="0.00" className="h-8 text-right" {...form.register('deliveryCharge')} />
+                <div className="w-3/5">
+                  <Input type="number" placeholder="0.00" className="h-8 text-right w-full" {...form.register('deliveryCharge')} />
                 </div>
               </div>
 
@@ -451,7 +451,7 @@ export default function CreateOrderPage() {
                       name="paymentMethod"
                       render={({ field }) => (
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <SelectTrigger className="w-1/2 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectTrigger className="w-3/5 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="cash">Cash</SelectItem>
                             <SelectItem value="card">Card</SelectItem>
@@ -465,8 +465,8 @@ export default function CreateOrderPage() {
                 
                 <div className="flex items-center justify-between">
                   <Label>Initial Paid</Label>
-                  <div className="w-1/2">
-                    <Input type="number" placeholder="0.00" className="h-9 text-right" {...form.register('initialPaid')}/>
+                  <div className="w-3/5">
+                    <Input type="number" placeholder="0.00" className="h-9 text-right w-full" {...form.register('initialPaid')}/>
                   </div>
                 </div>
                 
@@ -487,5 +487,7 @@ export default function CreateOrderPage() {
     </form>
   );
 }
+
+    
 
     
