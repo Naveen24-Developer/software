@@ -1,3 +1,4 @@
+
 import { IndianRupee, Package, Users, Activity } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h2>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h2>
+        </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline">Today</Button>
           <Button variant="outline">This Week</Button>
@@ -15,7 +18,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>

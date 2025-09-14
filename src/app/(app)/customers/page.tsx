@@ -50,14 +50,14 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex-1 min-w-[200px]">
           <h2 className="text-3xl font-bold tracking-tight font-headline">Customers</h2>
           <CardDescription>
             Manage your customers here.
           </CardDescription>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input 

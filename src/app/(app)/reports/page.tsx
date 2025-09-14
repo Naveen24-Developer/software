@@ -57,12 +57,12 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight font-headline">Order Reports</h2>
           <p className="text-muted-foreground">Review and manage all order details.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant={filter === 'all' ? 'default' : 'outline'} onClick={() => setFilter('all')}>All</Button>
           <Button variant={filter === 'today' ? 'default' : 'outline'} onClick={() => setFilter('today')}>Today</Button>
           <Button variant={filter === 'week' ? 'default' : 'outline'} onClick={() => setFilter('week')}>This Week</Button>
@@ -72,19 +72,19 @@ export default function ReportsPage() {
       
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <CardTitle>All Orders</CardTitle>
               <CardDescription>{filteredOrders.length} order(s) found.</CardDescription>
             </div>
-             <div className="flex items-center gap-4">
+             <div className="flex flex-wrap items-center gap-4">
               <Input 
                 placeholder="Search by Order ID or Customer..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-64"
+                className="w-full sm:w-64"
               />
-              <Button onClick={handlePrint}>Export</Button>
+              <Button onClick={handlePrint} className="w-full sm:w-auto">Export</Button>
             </div>
           </div>
         </CardHeader>
@@ -149,10 +149,10 @@ export default function ReportsPage() {
                         <TableCell colSpan={10} className="p-0">
                            <div className="p-4 bg-muted/50">
                             <h4 className="font-semibold mb-2">Order Details</h4>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                <div><strong>Address:</strong> {order.deliveryAddress}</div>
                                <div><strong>Payment Method:</strong> {order.paymentMethod}</div>
-                               {order.remarks && <div className="col-span-2"><strong>Remarks:</strong> {order.remarks}</div>}
+                               {order.remarks && <div className="col-span-1 sm:col-span-2"><strong>Remarks:</strong> {order.remarks}</div>}
                             </div>
                             <h5 className="font-semibold mt-4 mb-2">Items Rented</h5>
                             <Table>
