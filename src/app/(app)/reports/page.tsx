@@ -1,18 +1,33 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent
+} from '@/components/ui/dropdown-menu';
+import { MoreHorizontal, ChevronDown, ChevronUp, FileDown, Printer, Calendar as CalendarIcon } from 'lucide-react';
 import { mockOrders, mockProducts } from '@/lib/data';
 import type { Order } from '@/lib/types';
-import { format, subDays, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
+import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import type { DateRange } from 'react-day-picker';
+import { cn } from '@/lib/utils';
+
 
 const getPaymentStatus = (order: Order): { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' } => {
   if (order.status === 'Cancelled') return { text: 'Cancelled', variant: 'destructive' };
@@ -24,6 +39,7 @@ const getPaymentStatus = (order: Order): { text: string; variant: 'default' | 's
 export default function ReportsPage() {
   const [orders] = useState<Order[]>(mockOrders);
   const [filter, setFilter] = useState('all');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -31,14 +47,39 @@ export default function ReportsPage() {
     const now = new Date();
     let filtered = orders;
 
-    if (filter === 'today') {
-      filtered = orders.filter(o => format(new Date(o.createdAt), 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd'));
-    } else if (filter === 'week') {
-      const start = startOfWeek(now);
-      filtered = orders.filter(o => new Date(o.createdAt) >= start);
-    } else if (filter === 'month') {
-      const start = startOfMonth(now);
-      filtered = orders.filter(o => new Date(o.createdAt) >= start);
+    switch (filter) {
+      case 'today':
+        filtered = orders.filter(o => format(new Date(o.createdAt), 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd'));
+        break;
+      case 'yesterday':
+        const yesterday = subDays(now, 1);
+        filtered = orders.filter(o => format(new Date(o.createdAt), 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd'));
+        break;
+      case 'week':
+        const startOfThisWeek = startOfWeek(now);
+        const endOfThisWeek = endOfWeek(now);
+        filtered = orders.filter(o => isWithinInterval(new Date(o.createdAt), { start: startOfThisWeek, end: endOfThisWeek }));
+        break;
+      case 'month':
+        const startOfThisMonth = startOfMonth(now);
+        const endOfThisMonth = endOfMonth(now);
+        filtered = orders.filter(o => isWithinInterval(new Date(o.createdAt), { start: startOfThisMonth, end: endOfThisMonth }));
+        break;
+      case 'year':
+        const startOfThisYear = startOfYear(now);
+        const endOfThisYear = endOfYear(now);
+        filtered = orders.filter(o => isWithinInterval(new Date(o.createdAt), { start: startOfThisYear, end: endOfThisYear }));
+        break;
+      case 'custom':
+        if (dateRange?.from && dateRange?.to) {
+          filtered = orders.filter(o => isWithinInterval(new Date(o.createdAt), { start: dateRange.from!, end: dateRange.to! }));
+        } else if (dateRange?.from) {
+           filtered = orders.filter(o => format(new Date(o.createdAt), 'yyyy-MM-dd') === format(dateRange.from!, 'yyyy-MM-dd'));
+        }
+        break;
+      default: // 'all'
+        filtered = orders;
+        break;
     }
 
     if (searchTerm) {
@@ -49,11 +90,34 @@ export default function ReportsPage() {
     }
 
     return filtered;
-  }, [orders, filter, searchTerm]);
+  }, [orders, filter, dateRange, searchTerm]);
   
   const handlePrint = () => {
     window.print();
   }
+  
+  const handleFilterChange = (newFilter: string) => {
+    if (newFilter !== 'custom') {
+      setDateRange(undefined);
+    }
+    setFilter(newFilter);
+  }
+  
+  useEffect(() => {
+    if (dateRange?.from || dateRange?.to) {
+        setFilter('custom');
+    }
+  }, [dateRange]);
+
+  const filterLabels: { [key: string]: string } = {
+    all: 'All',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    week: 'This Week',
+    month: 'This Month',
+    year: 'This Year',
+    custom: 'Custom Range'
+  };
 
   return (
     <div className="space-y-8">
@@ -63,10 +127,59 @@ export default function ReportsPage() {
           <p className="text-muted-foreground">Review and manage all order details.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant={filter === 'all' ? 'default' : 'outline'} onClick={() => setFilter('all')}>All</Button>
-          <Button variant={filter === 'today' ? 'default' : 'outline'} onClick={() => setFilter('today')}>Today</Button>
-          <Button variant={filter === 'week' ? 'default' : 'outline'} onClick={() => setFilter('week')}>This Week</Button>
-          <Button variant={filter === 'month' ? 'default' : 'outline'} onClick={() => setFilter('month')}>This Month</Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={cn(
+                    "w-[260px] justify-start text-left font-normal",
+                    !dateRange && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[160px] justify-between">
+                  {filterLabels[filter] || 'Filter'}
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleFilterChange('all')}>All</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleFilterChange('today')}>Today</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleFilterChange('yesterday')}>Yesterday</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleFilterChange('week')}>This Week</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleFilterChange('month')}>This Month</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleFilterChange('year')}>This Year</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </div>
       
@@ -84,7 +197,24 @@ export default function ReportsPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full sm:w-64"
               />
-              <Button onClick={handlePrint} className="w-full sm:w-auto">Export</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handlePrint}>
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                     <FileDown className="mr-2 h-4 w-4" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardHeader>
@@ -139,7 +269,7 @@ export default function ReportsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>Mark as Returned</DropdownMenuItem>
-                            <DropdownMenuItem>Print Invoice</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handlePrint}>Print Invoice</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -199,3 +329,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+
