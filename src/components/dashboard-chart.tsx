@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import { useState, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
@@ -16,7 +16,8 @@ export function DashboardChart() {
   const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
-    setChartData([
+    // Generate data on the client-side only to prevent hydration errors
+    const generateData = () => [
       { month: 'Jan', total: Math.floor(Math.random() * 2000) + 500 },
       { month: 'Feb', total: Math.floor(Math.random() * 2000) + 500 },
       { month: 'Mar', total: Math.floor(Math.random() * 2000) + 500 },
@@ -29,7 +30,8 @@ export function DashboardChart() {
       { month: 'Oct', total: Math.floor(Math.random() * 2000) + 500 },
       { month: 'Nov', total: Math.floor(Math.random() * 2000) + 500 },
       { month: 'Dec', total: Math.floor(Math.random() * 2000) + 500 },
-    ]);
+    ];
+    setChartData(generateData());
   }, []);
 
   return (
