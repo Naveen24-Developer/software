@@ -7,6 +7,15 @@ export const metadata: Metadata = {
   description: 'Cooking Utensils Rental & Billing Web App',
 };
 
+function AppBody({ children }: { children: React.ReactNode }) {
+  return (
+    <body className="font-body antialiased">
+      {children}
+      <Toaster />
+    </body>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,10 +31,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased">
-        {children}
-        <Toaster />
-      </body>
+      <AppBody>{children}</AppBody>
     </html>
   );
 }
