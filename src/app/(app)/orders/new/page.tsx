@@ -79,22 +79,23 @@ export default function CreateOrderPage() {
   const watchedFormValues = form.watch();
 
   const priceDetails: PriceDetails = useMemo(() => {
-    const price = (watchedFormValues.items || []).reduce((total, item) => {
+    const { items, discountType, discountValue, deliveryCharge, initialPaid } = watchedFormValues;
+    const price = (items || []).reduce((total, item) => {
       const itemTotal = (item.quantity || 0) * (item.rentRate || 0) * (item.numberOfDays || 0);
       return total + itemTotal;
     }, 0);
 
     let discountAmount = 0;
-    const discountVal = Number(watchedFormValues.discountValue) || 0;
-    if (watchedFormValues.discountType === 'fixed') {
+    const discountVal = Number(discountValue) || 0;
+    if (discountType === 'fixed') {
       discountAmount = discountVal;
-    } else if (watchedFormValues.discountType === 'percentage') {
+    } else if (discountType === 'percentage') {
       discountAmount = price * (discountVal / 100);
     }
     
-    const deliveryChargeVal = Number(watchedFormValues.deliveryCharge) || 0;
+    const deliveryChargeVal = Number(deliveryCharge) || 0;
     const total = price - discountAmount + deliveryChargeVal;
-    const remainingAmount = total - (Number(watchedFormValues.initialPaid) || 0);
+    const remainingAmount = total - (Number(initialPaid) || 0);
 
     return { price, discountAmount, deliveryCharge: deliveryChargeVal, total, remainingAmount };
   }, [watchedFormValues]);
@@ -305,11 +306,11 @@ export default function CreateOrderPage() {
 
       <div className="lg:col-span-1 space-y-8">
         <div className="sticky top-20">
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 overflow-y-auto max-h-[calc(100vh-20rem)]">
               <div>
                 <Label>Customer *</Label>
                 {selectedCustomer ? (
@@ -440,7 +441,7 @@ export default function CreateOrderPage() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="mt-auto">
               <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting || editingIndex !== null}>
                 {form.formState.isSubmitting ? 'Placing Order...' : 'Place Order'}
               </Button>
