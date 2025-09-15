@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Search, Edit } from 'lucide-react';
+import { PlusCircle, Trash2, Search, Edit, Check } from 'lucide-react';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
@@ -22,7 +22,6 @@ import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
 
 const orderItemSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
@@ -339,54 +338,57 @@ export default function CreateOrderPage() {
                     </div>
                   ) : (
                     <div className="flex items-start gap-2 mt-2">
-                      <Controller
-                          control={form.control}
-                          name="customerId"
-                          render={({ field }) => (
-                            <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  aria-expanded={isCustomerPopoverOpen}
-                                  className="w-full justify-between"
-                                >
-                                  Select a customer
-                                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                                <Command>
-                                  <CommandInput placeholder="Search customers..." />
-                                  <CommandList>
-                                    <CommandEmpty>No customer found.</CommandEmpty>
-                                    <CommandGroup>
-                                      {customers.map((customer) => (
-                                        <CommandItem
-                                          key={customer.id}
-                                          value={`${customer.name} ${customer.phone}`}
-                                          onSelect={() => {
-                                            setSelectedCustomer(customer);
-                                            field.onChange(customer.id);
-                                            setIsCustomerPopoverOpen(false);
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              'mr-2 h-4 w-4',
-                                              field.value === customer.id ? 'opacity-100' : 'opacity-0'
-                                            )}
-                                          />
-                                          {customer.name} - {customer.phone}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          )}
-                        />
+                       <Controller
+                        control={form.control}
+                        name="customerId"
+                        render={({ field }) => (
+                          <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={isCustomerPopoverOpen}
+                                className="w-full justify-between"
+                              >
+                                Select customer...
+                                <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search customer..." />
+                                <CommandList>
+                                  <CommandEmpty>No customer found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {customers.map((customer) => (
+                                      <CommandItem
+                                        value={customer.name + customer.id}
+                                        key={customer.id}
+                                        onSelect={() => {
+                                          setSelectedCustomer(customer);
+                                          field.onChange(customer.id);
+                                          setIsCustomerPopoverOpen(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            field.value === customer.id ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        <div>
+                                          <p>{customer.name}</p>
+                                          <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
                          <CustomerFormDialog 
                           onSave={handleSaveCustomer}
                           open={isCustomerDialogOpen}
@@ -493,3 +495,5 @@ export default function CreateOrderPage() {
     </form>
   );
 }
+
+    
