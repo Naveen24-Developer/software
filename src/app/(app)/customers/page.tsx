@@ -8,34 +8,27 @@ import { PlusCircle, Search, MoreHorizontal } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { mockCustomers } from '@/lib/data';
 import type { Customer } from '@/lib/types';
 import CustomerFormDialog from './customer-form-dialog';
 import DeleteCustomerAlert from './delete-customer-alert';
+import { useCustomers } from '@/contexts/customer-context';
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+  const { customers, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   const handleSaveCustomer = (customerData: Omit<Customer, 'id' | 'createdAt'>, id?: string) => {
     if (id) {
-      // Update existing customer
-      setCustomers(customers.map(c => c.id === id ? { ...c, ...customerData } : c));
+      updateCustomer(id, customerData);
     } else {
-      // Add new customer
-      const newCustomer: Customer = {
-        ...customerData,
-        id: (customers.length + 1).toString(),
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      setCustomers([newCustomer, ...customers]);
+      addCustomer(customerData);
     }
   };
 
   const handleDeleteCustomer = (id: string) => {
-    setCustomers(customers.filter(c => c.id !== id));
+    deleteCustomer(id);
   };
   
   const handleOpenDialog = (customer: Customer | null = null) => {
@@ -68,7 +61,7 @@ export default function CustomersPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" onClick={() => handleOpenDialog()}>
+          <Button onClick={() => handleOpenDialog()}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Customer
           </Button>
@@ -81,7 +74,7 @@ export default function CustomersPage() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
       >
-        {/* The trigger is now external */}
+        {/* The trigger is now external and handled by the Add/Edit buttons */}
         <span />
       </CustomerFormDialog>
 

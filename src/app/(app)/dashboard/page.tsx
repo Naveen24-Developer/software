@@ -10,14 +10,15 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
-import { mockOrders, mockCustomers, mockProducts } from '@/lib/data';
+import { mockOrders, mockProducts } from '@/lib/data';
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useCustomers } from '@/contexts/customer-context';
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState<string>('month');
   const [orders] = useState(mockOrders);
-  const [customers] = useState(mockCustomers);
+  const { customers } = useCustomers();
   const [products] = useState(mockProducts);
 
   // Calculate metrics based on time range
@@ -86,15 +87,15 @@ export default function DashboardPage() {
     }
 
     const previousRevenue = previousPeriodOrders.reduce((sum, order) => sum + order.priceDetails.total, 0);
-    const revenueChange = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 100;
+    const revenueChange = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : (totalRevenue > 0 ? 100 : 0);
     
     const ordersChange = previousPeriodOrders.length > 0 
       ? ((filteredOrders.length - previousPeriodOrders.length) / previousPeriodOrders.length) * 100 
-      : 100;
+      : (filteredOrders.length > 0 ? 100 : 0);
     
     const customersChange = previousPeriodCustomers.length > 0 
       ? ((filteredCustomers.length - previousPeriodCustomers.length) / previousPeriodCustomers.length) * 100 
-      : 100;
+      : (filteredCustomers.length > 0 ? 100 : 0);
 
     // Calculate active rentals (orders that are not completed/returned)
     const activeRentals = orders.filter(order => order.status === 'Active').length;
@@ -108,7 +109,7 @@ export default function DashboardPage() {
     
     const activeRentalsChange = previousActiveRentals > 0 
       ? ((activeRentals - previousActiveRentals) / previousActiveRentals) * 100 
-      : 100;
+      : (activeRentals > 0 ? 100 : 0);
 
     // Get top selling products
     const productSales: { [key: string]: number } = {};
@@ -250,7 +251,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.newCustomers}</div>
+            <div className="text-2xl font-bold">+{metrics.newCustomers}</div>
             <div className="flex items-center pt-1">
               {metrics.customersChange >= 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
@@ -370,5 +371,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

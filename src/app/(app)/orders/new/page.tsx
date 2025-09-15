@@ -15,20 +15,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Edit, Check, ChevronsUpDown } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
+import { PlusCircle, Trash2, Edit } from 'lucide-react';
+import { mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
 import { Switch } from '@/components/ui/switch';
+import { useCustomers } from '@/contexts/customer-context';
 
 const orderItemSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
@@ -55,7 +47,7 @@ const formSchema = z.object({
 type OrderFormValues = z.infer<typeof formSchema>;
 
 export default function CreateOrderPage() {
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+  const { customers, addCustomer } = useCustomers();
   const [products] = useState<Product[]>(mockProducts);
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -118,12 +110,7 @@ export default function CreateOrderPage() {
   }, [selectedCustomer, form]);
 
   const handleSaveCustomer = (customerData: Omit<Customer, 'id' | 'createdAt'>) => {
-      const newCustomer: Customer = {
-        ...customerData,
-        id: (customers.length + 1).toString(),
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      setCustomers(prev => [newCustomer, ...prev]);
+      const newCustomer = addCustomer(customerData);
       setSelectedCustomer(newCustomer);
       setIsCustomerDialogOpen(false);
   };

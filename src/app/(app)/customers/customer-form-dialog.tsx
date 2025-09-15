@@ -60,7 +60,7 @@ export default function CustomerFormDialog({
       form.reset({
         name: customer.name,
         phone: customer.phone,
-        address: customer.address,
+        address: customer.address || '',
         aadhar: customer.aadhar || '',
         referredBy: customer.referredBy || '',
       });
