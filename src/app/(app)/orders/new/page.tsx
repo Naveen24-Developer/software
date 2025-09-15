@@ -183,77 +183,6 @@ export default function CreateOrderPage() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start">
       <div className="lg:col-span-2 space-y-8">
         <Card>
-          <CardHeader>
-            <CardTitle>Customer</CardTitle>
-            <CardDescription>Select an existing customer or add a new one.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex items-start gap-4">
-            <div className="flex-grow">
-              <Controller
-                control={form.control}
-                name="customerId"
-                render={({ field }) => (
-                  <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={isCustomerPopoverOpen}
-                        className="w-full justify-between"
-                      >
-                        {selectedCustomer ? `${selectedCustomer.name} - ${selectedCustomer.phone}` : 'Select a customer'}
-                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search customers..." />
-                        <CommandList>
-                          <CommandEmpty>No customer found.</CommandEmpty>
-                          <CommandGroup>
-                            {customers.map((customer) => (
-                              <CommandItem
-                                key={customer.id}
-                                value={`${customer.name} ${customer.phone}`}
-                                onSelect={() => {
-                                  setSelectedCustomer(customer);
-                                  field.onChange(customer.id);
-                                  setIsCustomerPopoverOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    'mr-2 h-4 w-4',
-                                    field.value === customer.id ? 'opacity-100' : 'opacity-0'
-                                  )}
-                                />
-                                {customer.name} - {customer.phone}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-              {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
-            </div>
-            
-            <CustomerFormDialog 
-              onSave={handleSaveCustomer}
-              open={isCustomerDialogOpen}
-              onOpenChange={setIsCustomerDialogOpen}
-            >
-              <Button size="icon" type="button" onClick={() => setIsCustomerDialogOpen(true)}>
-                <PlusCircle className="h-4 w-4" />
-                <span className="sr-only">Add Customer</span>
-              </Button>
-            </CustomerFormDialog>
-          </CardContent>
-        </Card>
-
-        <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Rental Items</CardTitle>
@@ -396,44 +325,121 @@ export default function CreateOrderPage() {
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>₹{priceDetails.price.toFixed(2)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                  <Label className="text-muted-foreground">Discount</Label>
-                   <div className="flex items-center gap-2 w-3/5">
+            <CardContent className="space-y-4">
+                {/* Customer Selection */}
+                <div>
+                  <Label>Customer *</Label>
+                  {selectedCustomer ? (
+                    <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
+                      <div>
+                        <p className="font-medium">{selectedCustomer.name}</p>
+                        <p className="text-sm text-muted-foreground">{selectedCustomer.phone}</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>Change</Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2 mt-2">
                       <Controller
                           control={form.control}
-                          name="discountType"
+                          name="customerId"
                           render={({ field }) => (
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger className="w-full h-8"><SelectValue placeholder="Type" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="fixed">₹ (Fixed)</SelectItem>
-                                <SelectItem value="percentage">% (Percent)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                      )}
-                      />
-                      <Input type="number" placeholder="0" className="w-full h-8" {...form.register('discountValue')} />
-                  </div>
-              </div>
-
-               <div className="flex justify-between">
-                <span className="text-muted-foreground">Discount Amount</span>
-                <span className="text-destructive">- ₹{priceDetails.discountAmount.toFixed(2)}</span>
-              </div>
-              
-               <div className="flex items-center justify-between">
-                <Label className="text-muted-foreground">Delivery Charge</Label>
-                <div className="w-3/5">
-                  <Input type="number" placeholder="0.00" className="h-8 text-right w-full" {...form.register('deliveryCharge')} />
+                            <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  aria-expanded={isCustomerPopoverOpen}
+                                  className="w-full justify-between"
+                                >
+                                  Select a customer
+                                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                  <CommandInput placeholder="Search customers..." />
+                                  <CommandList>
+                                    <CommandEmpty>No customer found.</CommandEmpty>
+                                    <CommandGroup>
+                                      {customers.map((customer) => (
+                                        <CommandItem
+                                          key={customer.id}
+                                          value={`${customer.name} ${customer.phone}`}
+                                          onSelect={() => {
+                                            setSelectedCustomer(customer);
+                                            field.onChange(customer.id);
+                                            setIsCustomerPopoverOpen(false);
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              'mr-2 h-4 w-4',
+                                              field.value === customer.id ? 'opacity-100' : 'opacity-0'
+                                            )}
+                                          />
+                                          {customer.name} - {customer.phone}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          )}
+                        />
+                         <CustomerFormDialog 
+                          onSave={handleSaveCustomer}
+                          open={isCustomerDialogOpen}
+                          onOpenChange={setIsCustomerDialogOpen}
+                        >
+                          <Button size="icon" type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
+                            <PlusCircle className="h-4 w-4" />
+                            <span className="sr-only">Add Customer</span>
+                          </Button>
+                        </CustomerFormDialog>
+                    </div>
+                  )}
+                   {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
                 </div>
-              </div>
+              <Separator />
+               <div className="space-y-2 text-sm">
+                 <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>₹{priceDetails.price.toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                      <Label className="text-muted-foreground">Discount</Label>
+                      <div className="flex items-center gap-2 w-3/5">
+                          <Controller
+                              control={form.control}
+                              name="discountType"
+                              render={({ field }) => (
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger className="w-full h-8"><SelectValue placeholder="Type" /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="fixed">₹ (Fixed)</SelectItem>
+                                    <SelectItem value="percentage">% (Percent)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                          )}
+                          />
+                          <Input type="number" placeholder="0" className="w-full h-8" {...form.register('discountValue')} />
+                      </div>
+                  </div>
 
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Discount Amount</span>
+                    <span className="text-destructive">- ₹{priceDetails.discountAmount.toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label className="text-muted-foreground">Delivery Charge</Label>
+                    <div className="w-2/5">
+                      <Input type="number" placeholder="0.00" className="h-8 text-right w-full" {...form.register('deliveryCharge')} />
+                    </div>
+                  </div>
+               </div>
               <Separator />
 
               <div className="flex justify-between font-semibold text-base">
@@ -487,7 +493,3 @@ export default function CreateOrderPage() {
     </form>
   );
 }
-
-    
-
-    
