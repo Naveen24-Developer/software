@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { Card, CardContent } from '@/components/ui/card';
 
 const chartConfig = {
   total: {
@@ -34,42 +34,45 @@ export function DashboardChart() {
     setChartData(generateData());
   }, []);
 
+  if (!chartData.length) {
+    return (
+        <div className="flex items-center justify-center min-h-[350px]">
+            <p className="text-muted-foreground">Loading chart...</p>
+        </div>
+    );
+  }
+
   return (
-    <Card className="col-span-1 lg:col-span-2">
-      <CardHeader>
-        <CardTitle>Rental Income Overview</CardTitle>
-      </CardHeader>
-      <CardContent className="pl-2">
-        <ChartContainer config={chartConfig} className="min-h-[350px] w-full">
-          <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={chartData}>
-              <XAxis
-                dataKey="month"
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `₹${value}`}
-              />
-              <Tooltip
-                content={<ChartTooltipContent />}
-                cursor={{ fill: 'hsl(var(--accent) / 0.3)' }}
-              />
-              <Bar
-                dataKey="total"
-                fill="hsl(var(--primary))"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartContainer>
-      </CardContent>
-    </Card>
+    <CardContent className="pl-2">
+      <ChartContainer config={chartConfig} className="min-h-[350px] w-full">
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={chartData}>
+            <XAxis
+              dataKey="month"
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={12}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `₹${value}`}
+            />
+            <Tooltip
+              content={<ChartTooltipContent />}
+              cursor={{ fill: 'hsl(var(--accent) / 0.3)' }}
+            />
+            <Bar
+              dataKey="total"
+              fill="hsl(var(--primary))"
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartContainer>
+    </CardContent>
   );
 }
