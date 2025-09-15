@@ -272,7 +272,7 @@ export default function CreateOrderPage() {
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 overflow-y-auto max-h-[calc(100vh-20rem)]">
+              <CardContent className="space-y-4 overflow-y-auto max-h-[calc(106vh-20rem)]">
                 <div>
                   {selectedCustomer ? (
                     <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
