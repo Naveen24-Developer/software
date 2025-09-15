@@ -19,8 +19,6 @@ import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/dat
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
 import { Switch } from '@/components/ui/switch';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 
 const orderItemSchema = z.object({
@@ -51,7 +49,6 @@ export default function CreateOrderPage() {
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
   const [products] = useState<Product[]>(mockProducts);
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
-  const [isCustomerPopoverOpen, setIsCustomerPopoverOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const router = useRouter();
@@ -342,51 +339,28 @@ export default function CreateOrderPage() {
                         control={form.control}
                         name="customerId"
                         render={({ field }) => (
-                          <Popover open={isCustomerPopoverOpen} onOpenChange={setIsCustomerPopoverOpen}>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                aria-expanded={isCustomerPopoverOpen}
-                                className="w-full justify-between"
-                              >
-                                Select customer...
-                                <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                              <Command>
-                                <CommandInput placeholder="Search customer..." />
-                                <CommandList>
-                                  <CommandEmpty>No customer found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {customers.map((customer) => (
-                                      <CommandItem
-                                        value={customer.name + customer.id}
-                                        key={customer.id}
-                                        onSelect={() => {
-                                          setSelectedCustomer(customer);
-                                          field.onChange(customer.id);
-                                          setIsCustomerPopoverOpen(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4",
-                                            field.value === customer.id ? "opacity-100" : "opacity-0"
-                                          )}
-                                        />
-                                        <div>
-                                          <p>{customer.name}</p>
-                                          <p className="text-xs text-muted-foreground">{customer.phone}</p>
-                                        </div>
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
+                           <Select 
+                            onValueChange={(value) => {
+                              const customer = customers.find(c => c.id === value);
+                              setSelectedCustomer(customer || null);
+                              field.onChange(value);
+                            }} 
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a customer" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {customers.map((customer) => (
+                                <SelectItem key={customer.id} value={customer.id}>
+                                  <div>
+                                    <p>{customer.name}</p>
+                                    <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         )}
                       />
                          <CustomerFormDialog 
