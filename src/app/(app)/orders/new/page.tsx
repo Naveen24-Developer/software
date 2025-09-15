@@ -304,7 +304,7 @@ export default function CreateOrderPage() {
 
       </div>
 
-      <div className="lg:col-span-1 space-y-8">
+      <div className="lg:col-span-1 space-y-8 sticky top-20">
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle>Order Summary</CardTitle>
@@ -350,9 +350,9 @@ export default function CreateOrderPage() {
                     open={isCustomerDialogOpen}
                     onOpenChange={setIsCustomerDialogOpen}
                   >
-                    <Button type="button" onClick={() => setIsCustomerDialogOpen(true)}>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Add Customer
+                    <Button type="button" size="icon" onClick={() => setIsCustomerDialogOpen(true)}>
+                      <PlusCircle className="h-4 w-4" />
+                      <span className="sr-only">Add Customer</span>
                     </Button>
                   </CustomerFormDialog>
                 </div>
