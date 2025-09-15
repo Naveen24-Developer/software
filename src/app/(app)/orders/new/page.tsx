@@ -7,7 +7,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,16 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, Check, ChevronsUpDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
@@ -51,6 +60,7 @@ export default function CreateOrderPage() {
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [openCombobox, setOpenCombobox] = useState(false);
   const router = useRouter();
 
   const form = useForm<OrderFormValues>({
@@ -195,7 +205,7 @@ export default function CreateOrderPage() {
               <div key={field.id} className="p-4 border rounded-lg space-y-4 bg-secondary/20">
                 {editingIndex === index ? (
                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
                           <div className='space-y-1.5 col-span-1 sm:col-span-2 md:col-span-1'>
                               <Label>Product *</Label>
                               <Controller
@@ -311,8 +321,7 @@ export default function CreateOrderPage() {
 
       </div>
 
-      <div className="lg:col-span-1">
-        <div className="sticky top-20 space-y-8">
+      <div className="lg:col-span-1 space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
@@ -334,28 +343,53 @@ export default function CreateOrderPage() {
                         control={form.control}
                         name="customerId"
                         render={({ field }) => (
-                           <Select 
-                            onValueChange={(value) => {
-                              const customer = customers.find(c => c.id === value);
-                              setSelectedCustomer(customer || null);
-                              field.onChange(value);
-                            }} 
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select a customer" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {customers.map((customer) => (
-                                <SelectItem key={customer.id} value={customer.id}>
-                                  <div className="flex flex-col">
-                                    <p>{customer.name}</p>
-                                    <p className="text-xs text-muted-foreground">{customer.phone}</p>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={openCombobox}
+                                className="w-full justify-between"
+                              >
+                                {field.value
+                                  ? customers.find((customer) => customer.id === field.value)?.name
+                                  : 'Select a customer'}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search customer..." />
+                                <CommandList>
+                                  <CommandEmpty>No customer found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {customers.map((customer) => (
+                                      <CommandItem
+                                        key={customer.id}
+                                        value={customer.name}
+                                        onSelect={() => {
+                                          setSelectedCustomer(customer);
+                                          field.onChange(customer.id);
+                                          setOpenCombobox(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            'mr-2 h-4 w-4',
+                                            field.value === customer.id ? 'opacity-100' : 'opacity-0'
+                                          )}
+                                        />
+                                        <div>
+                                          <p>{customer.name}</p>
+                                          <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                         )}
                       />
                          <CustomerFormDialog 
@@ -460,13 +494,6 @@ export default function CreateOrderPage() {
             </CardFooter>
           </Card>
         </div>
-      </div>
     </form>
   );
 }
-
-    
-
-    
-
-
