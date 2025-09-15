@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -223,40 +222,42 @@ export default function CreateOrderPage() {
           
           <Card>
             <CardHeader><CardTitle>Delivery &amp; Remarks</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
                 <Label htmlFor="address">Delivery Address *</Label>
-                <Textarea placeholder="Enter delivery address" {...form.register('deliveryAddress')} />
+                <Textarea id="address" placeholder="Enter delivery address" {...form.register('deliveryAddress')} />
                 {form.formState.errors.deliveryAddress && <p className="text-sm font-medium text-destructive">{form.formState.errors.deliveryAddress.message}</p>}
               </div>
-              <div className="flex items-center space-x-2">
-                <Controller
-                  control={form.control}
-                  name="pickupRequired"
-                  render={({ field }) => (
-                    <Switch id="pickup-required" checked={field.value} onCheckedChange={field.onChange} />
-                  )}
-                />
-                <Label htmlFor="pickup-required">Pickup Required</Label>
-              </div>
-              {form.watch('pickupRequired') && (
-                <div>
-                  <Label htmlFor="vehicle">Vehicle Number</Label>
-                  <Controller
-                    control={form.control}
-                    name="vehicleId"
-                    render={({ field }) => (
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <SelectTrigger><SelectValue placeholder="Select a vehicle" /></SelectTrigger>
-                        <SelectContent>
-                          {mockVehicles.map(v => <SelectItem key={v.id} value={v.id}>{v.number}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-center space-x-2">
+                    <Controller
+                      control={form.control}
+                      name="pickupRequired"
+                      render={({ field }) => (
+                        <Switch id="pickup-required" checked={field.value} onCheckedChange={field.onChange} />
+                      )}
+                    />
+                    <Label htmlFor="pickup-required" className="cursor-pointer">Pickup Required</Label>
                 </div>
-              )}
-              <div>
+                {form.watch('pickupRequired') && (
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicle">Vehicle Number</Label>
+                    <Controller
+                      control={form.control}
+                      name="vehicleId"
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger><SelectValue placeholder="Select a vehicle" /></SelectTrigger>
+                          <SelectContent>
+                            {mockVehicles.map(v => <SelectItem key={v.id} value={v.id}>{v.number}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="remarks">Remarks</Label>
                 <Textarea id="remarks" placeholder="Add any special instructions or notes here" {...form.register('remarks')}/>
               </div>
@@ -313,7 +314,6 @@ export default function CreateOrderPage() {
                       >
                         <Button type="button" size="icon" onClick={() => setIsCustomerDialogOpen(true)}>
                           <PlusCircle />
-                          <span className="sr-only">Add Customer</span>
                         </Button>
                       </CustomerFormDialog>
                     </div>
