@@ -14,12 +14,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Search, Edit, Check } from 'lucide-react';
+import { PlusCircle, Trash2, Edit } from 'lucide-react';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
 import { Switch } from '@/components/ui/switch';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react';
 
 const orderItemSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
@@ -70,7 +73,7 @@ export default function CreateOrderPage() {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'items',
   });
@@ -106,6 +109,9 @@ export default function CreateOrderPage() {
     if (selectedCustomer) {
       form.setValue('customerId', selectedCustomer.id);
       form.setValue('deliveryAddress', selectedCustomer.address || '');
+    } else {
+        form.setValue('customerId', '');
+        form.setValue('deliveryAddress', '');
     }
   }, [selectedCustomer, form]);
 
@@ -136,7 +142,6 @@ export default function CreateOrderPage() {
   }
 
   const handleUpdateItem = (index: number) => {
-    // Manually trigger validation for the specific item
     form.trigger(`items.${index}`).then(isValid => {
       if (isValid) {
         setEditingIndex(null);
@@ -169,7 +174,6 @@ export default function CreateOrderPage() {
     };
     mockOrders.unshift(newOrder);
 
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     router.push('/reports');
@@ -184,68 +188,65 @@ export default function CreateOrderPage() {
               <CardTitle>Rental Items</CardTitle>
               <CardDescription>Add utensils to the order.</CardDescription>
             </div>
-            <Button size="icon" type="button" onClick={handleAddNewItem}>
+            <Button size="icon" type="button" onClick={handleAddNewItem} disabled={editingIndex !== null}>
                 <PlusCircle className="h-4 w-4" />
                 <span className="sr-only">Add Item</span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border rounded-lg space-y-4">
+              <div key={field.id} className="p-4 border rounded-lg space-y-4 bg-secondary/20">
                 {editingIndex === index ? (
-                  // EDITING VIEW
                    <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <Label>Product *</Label>
-                            <Controller
-                                control={form.control}
-                                name={`items.${index}.productId`}
-                                render={({ field: controllerField }) => (
-                                    <Select 
-                                    onValueChange={(value) => {
-                                        const product = products.find(p => p.id === value);
-                                        controllerField.onChange(value);
-                                        form.setValue(`items.${index}.productRate`, product?.rate || 0);
-                                        form.setValue(`items.${index}.rentRate`, product?.rate || 0);
-                                    }} 
-                                    defaultValue={controllerField.value}
-                                    >
-                                    <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
-                                    <SelectContent>
-                                        {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                    </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.productId?.message}</p>}
-                        </div>
-                        <div>
-                            <Label>Quantity *</Label>
-                            <Input type="number" {...form.register(`items.${index}.quantity`)} />
-                            {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
-                        </div>
+                      <div>
+                          <Label>Product *</Label>
+                          <Controller
+                              control={form.control}
+                              name={`items.${index}.productId`}
+                              render={({ field: controllerField }) => (
+                                  <Select 
+                                  onValueChange={(value) => {
+                                      const product = products.find(p => p.id === value);
+                                      controllerField.onChange(value);
+                                      form.setValue(`items.${index}.productRate`, product?.rate || 0);
+                                      form.setValue(`items.${index}.rentRate`, product?.rate || 0);
+                                  }} 
+                                  defaultValue={controllerField.value}
+                                  >
+                                  <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
+                                  <SelectContent>
+                                      {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                  </SelectContent>
+                                  </Select>
+                              )}
+                          />
+                          {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.productId?.message}</p>}
+                      </div>
+                      <div>
+                          <Label>Quantity *</Label>
+                          <Input type="number" {...form.register(`items.${index}.quantity`)} />
+                          {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
+                      </div>
+                      <div>
+                          <Label>Product Rate</Label>
+                          <Input {...form.register(`items.${index}.productRate`)} disabled />
+                      </div>
+                      <div>
+                          <Label>Rent Rate *</Label>
+                          <Input type="number" step="0.01" {...form.register(`items.${index}.rentRate`)} />
+                          {form.formState.errors.items?.[index]?.rentRate && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.rentRate?.message}</p>}
+                      </div>
+                      <div>
+                          <Label>No. of Days *</Label>
+                          <Input type="number" {...form.register(`items.${index}.numberOfDays`)} />
+                          {form.formState.errors.items?.[index]?.numberOfDays && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.numberOfDays?.message}</p>}
+                      </div>
+                    <div className='flex items-center gap-2'>
+                        <Button type="button" onClick={() => handleUpdateItem(index)}>Done</Button>
+                        <Button type="button" variant="outline" onClick={() => { remove(index); setEditingIndex(null); }}>Cancel</Button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <Label>Product Rate</Label>
-                            <Input {...form.register(`items.${index}.productRate`)} disabled />
-                        </div>
-                        <div>
-                            <Label>Rent Rate *</Label>
-                            <Input type="number" step="0.01" {...form.register(`items.${index}.rentRate`)} />
-                            {form.formState.errors.items?.[index]?.rentRate && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.rentRate?.message}</p>}
-                        </div>
-                        <div>
-                            <Label>No. of Days *</Label>
-                            <Input type="number" {...form.register(`items.${index}.numberOfDays`)} />
-                            {form.formState.errors.items?.[index]?.numberOfDays && <p className="text-sm font-medium text-destructive">{form.formState.errors.items?.[index]?.numberOfDays?.message}</p>}
-                        </div>
-                    </div>
-                    <Button type="button" onClick={() => handleUpdateItem(index)}>Done</Button>
                   </div>
                 ) : (
-                  // READONLY VIEW
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-medium">{products.find(p => p.id === watchItems[index].productId)?.name || 'Item not selected'}</p>
@@ -255,10 +256,10 @@ export default function CreateOrderPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium">₹{((watchItems[index].quantity || 0) * (Number(watchItems[index].rentRate) || 0) * (watchItems[index].numberOfDays || 0)).toFixed(2)}</p>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8">
+                      <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8" disabled={editingIndex !== null}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} className="h-8 w-8">
+                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-8 w-8 text-destructive" disabled={editingIndex !== null}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -322,7 +323,6 @@ export default function CreateOrderPage() {
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {/* Customer Selection */}
                 <div>
                   <Label>Customer *</Label>
                   {selectedCustomer ? (
