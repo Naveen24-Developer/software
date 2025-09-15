@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -27,8 +27,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import type { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
-import { useReactToPrint } from 'react-to-print';
-import Invoice from './invoice';
 
 
 const getPaymentStatus = (order: Order): { text: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' } => {
@@ -44,24 +42,6 @@ export default function ReportsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [openOrderId, setOpenOrderId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [orderToPrint, setOrderToPrint] = useState<Order | null>(null);
-  
-  const invoiceRef = useRef(null);
-
-  const handlePrint = useReactToPrint({
-    content: () => invoiceRef.current,
-    onAfterPrint: () => setOrderToPrint(null),
-  });
-  
-  const triggerPrint = (order: Order) => {
-    setOrderToPrint(order);
-  }
-
-  useEffect(() => {
-    if (orderToPrint) {
-      handlePrint();
-    }
-  }, [orderToPrint, handlePrint]);
 
   const filteredOrders = useMemo(() => {
     const now = new Date();
@@ -112,6 +92,10 @@ export default function ReportsPage() {
     return filtered;
   }, [orders, filter, dateRange, searchTerm]);
   
+  const handlePrint = () => {
+    window.print();
+  }
+  
   const handleFilterChange = (newFilter: string) => {
     if (newFilter !== 'custom') {
       setDateRange(undefined);
@@ -137,7 +121,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 print-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight font-headline">Order Reports</h2>
           <p className="text-muted-foreground">Review and manage all order details.</p>
@@ -199,7 +183,7 @@ export default function ReportsPage() {
         </div>
       </div>
       
-      <Card className="print-hidden">
+      <Card>
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -211,7 +195,7 @@ export default function ReportsPage() {
                 placeholder="Search by Order ID or Customer..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-auto md:w-64"
+                className="w-full sm:w-64"
               />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -221,7 +205,7 @@ export default function ReportsPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => window.print()}>
+                  <DropdownMenuItem onClick={handlePrint}>
                     <Printer className="mr-2 h-4 w-4" />
                     Print
                   </DropdownMenuItem>
@@ -238,7 +222,7 @@ export default function ReportsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[50px] print-hidden"></TableHead>
+                <TableHead className="w-[50px]"></TableHead>
                 <TableHead>S.No</TableHead>
                 <TableHead>Order ID</TableHead>
                 <TableHead>Date</TableHead>
@@ -247,7 +231,7 @@ export default function ReportsPage() {
                 <TableHead className="text-right">Initial Paid</TableHead>
                 <TableHead className="text-right">Remaining</TableHead>
                 <TableHead>Payment Status</TableHead>
-                <TableHead className="print-hidden">
+                <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
               </TableRow>
@@ -257,7 +241,7 @@ export default function ReportsPage() {
                 <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => setOpenOrderId(prev => prev === order.id ? null : order.id)}>
                   <>
                     <TableRow className="cursor-pointer">
-                      <TableCell className="print-hidden">
+                      <TableCell>
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
                             {openOrderId === order.id ? <ChevronUp /> : <ChevronDown />}
@@ -274,7 +258,7 @@ export default function ReportsPage() {
                       <TableCell>
                         <Badge variant={getPaymentStatus(order).variant}>{getPaymentStatus(order).text}</Badge>
                       </TableCell>
-                      <TableCell className="print-hidden">
+                      <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button aria-haspopup="true" size="icon" variant="ghost">
@@ -285,7 +269,7 @@ export default function ReportsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>Mark as Returned</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => triggerPrint(order)}>Print Invoice</DropdownMenuItem>
+                            <DropdownMenuItem onClick={handlePrint}>Print Invoice</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -342,9 +326,7 @@ export default function ReportsPage() {
           )}
         </CardContent>
       </Card>
-      <div className="hidden">
-        {orderToPrint && <Invoice ref={invoiceRef} order={orderToPrint} />}
-      </div>
     </div>
   );
 }
+
