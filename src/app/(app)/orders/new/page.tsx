@@ -85,16 +85,12 @@ export default function CreateOrderPage() {
     name: 'items',
   });
 
-  const watch = form.watch;
+  const watchedValues = form.watch();
 
   const priceDetails: PriceDetails = useMemo(() => {
-    const items = watch('items');
-    const discountType = watch('discountType');
-    const discountValue = watch('discountValue');
-    const deliveryCharge = watch('deliveryCharge');
-    const initialPaid = watch('initialPaid');
-
-    const price = items.reduce((total, item) => {
+    const { items, discountType, discountValue, deliveryCharge, initialPaid } = watchedValues;
+    
+    const price = (items || []).reduce((total, item) => {
       const itemTotal = (item.quantity || 0) * (item.rentRate || 0) * (item.numberOfDays || 0);
       return total + itemTotal;
     }, 0);
@@ -107,12 +103,12 @@ export default function CreateOrderPage() {
       discountAmount = price * (discountVal / 100);
     }
     
-    const charge = Number(deliveryCharge) || 0;
-    const total = price - discountAmount + charge;
+    const deliveryChargeVal = Number(deliveryCharge) || 0;
+    const total = price - discountAmount + deliveryChargeVal;
     const remainingAmount = total - (Number(initialPaid) || 0);
 
-    return { price, discountAmount, deliveryCharge: charge, total, remainingAmount };
-  }, [watch]);
+    return { price, discountAmount, deliveryCharge: deliveryChargeVal, total, remainingAmount };
+  }, [watchedValues]);
   
   useEffect(() => {
     if (selectedCustomer) {
@@ -256,13 +252,13 @@ export default function CreateOrderPage() {
                 ) : (
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">{products.find(p => p.id === watch('items')[index].productId)?.name || 'Item not selected'}</p>
+                      <p className="font-medium">{products.find(p => p.id === watchedValues.items?.[index]?.productId)?.name || 'Item not selected'}</p>
                       <p className="text-sm text-muted-foreground">
-                        {watch('items')[index].quantity} units x {watch('items')[index].numberOfDays} days @ ₹{(Number(watch('items')[index].rentRate) || 0).toFixed(2)}/day
+                        {watchedValues.items?.[index]?.quantity} units x {watchedValues.items?.[index]?.numberOfDays} days @ ₹{(Number(watchedValues.items?.[index]?.rentRate) || 0).toFixed(2)}/day
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium">₹{((watch('items')[index].quantity || 0) * (Number(watch('items')[index].rentRate) || 0) * (watch('items')[index].numberOfDays || 0)).toFixed(2)}</p>
+                      <p className="font-medium">₹{((watchedValues.items?.[index]?.quantity || 0) * (Number(watchedValues.items?.[index]?.rentRate) || 0) * (watchedValues.items?.[index]?.numberOfDays || 0)).toFixed(2)}</p>
                       <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8" disabled={editingIndex !== null}>
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -297,7 +293,7 @@ export default function CreateOrderPage() {
               />
               <Label htmlFor="pickup-required">Pickup Required</Label>
             </div>
-            {watch('pickupRequired') && (
+            {watchedValues.pickupRequired && (
               <div>
                 <Label htmlFor="vehicle">Vehicle Number</Label>
                  <Controller
@@ -324,150 +320,148 @@ export default function CreateOrderPage() {
       </div>
 
       <div className="lg:col-span-1 space-y-8">
-        <div className="sticky top-20">
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div>
-                  <Label>Customer *</Label>
-                  {selectedCustomer ? (
-                    <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
-                      <div>
-                        <p className="font-medium">{selectedCustomer.name}</p>
-                        <p className="text-sm text-muted-foreground">{selectedCustomer.phone}</p>
+          <div className="sticky top-20">
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  <div>
+                    <Label>Customer *</Label>
+                    {selectedCustomer ? (
+                      <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
+                        <div>
+                          <p className="font-medium">{selectedCustomer.name}</p>
+                          <p className="text-sm text-muted-foreground">{selectedCustomer.phone}</p>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>Change</Button>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>Change</Button>
+                    ) : (
+                      <div className="flex items-start gap-2 mt-2">
+                        <Controller
+                          control={form.control}
+                          name="customerId"
+                          render={({ field }) => (
+                             <Select onValueChange={(value) => {
+                                const customer = customers.find(c => c.id === value);
+                                setSelectedCustomer(customer || null);
+                                field.onChange(value);
+                              }} defaultValue={field.value}>
+                              <SelectTrigger><SelectValue placeholder="Select a customer" /></SelectTrigger>
+                              <SelectContent>
+                                {customers.map((customer) => (
+                                   <SelectItem key={customer.id} value={customer.id}>
+                                      <div>
+                                        <p>{customer.name}</p>
+                                        <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                      </div>
+                                    </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                          <CustomerFormDialog 
+                            onSave={handleSaveCustomer}
+                            open={isCustomerDialogOpen}
+                            onOpenChange={setIsCustomerDialogOpen}
+                          >
+                            <Button size="icon" type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
+                              <PlusCircle className="h-4 w-4" />
+                              <span className="sr-only">Add Customer</span>
+                            </Button>
+                          </CustomerFormDialog>
+                      </div>
+                    )}
+                    {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
+                  </div>
+                <Separator />
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>₹{priceDetails.price.toFixed(2)}</span>
                     </div>
-                  ) : (
-                    <div className="flex items-start gap-2 mt-2">
-                       <Controller
+                    
+                    <div className="flex items-center justify-between">
+                        <Label className="text-muted-foreground">Discount</Label>
+                        <div className="flex items-center gap-2 w-3/5">
+                            <Controller
+                                control={form.control}
+                                name="discountType"
+                                render={({ field }) => (
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <SelectTrigger className="w-full h-8"><SelectValue placeholder="Type" /></SelectTrigger>
+                                  <SelectContent>
+                                      <SelectItem value="fixed">₹ (Fixed)</SelectItem>
+                                      <SelectItem value="percentage">% (Percent)</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                            )}
+                            />
+                            <Input type="number" placeholder="0" className="w-full h-8" {...form.register('discountValue')} />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Discount Amount</span>
+                      <span className="text-destructive">- ₹{priceDetails.discountAmount.toFixed(2)}</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <Label className="text-muted-foreground">Delivery Charge</Label>
+                      <div className="w-2/5">
+                        <Input type="number" placeholder="0.00" className="h-8 text-right w-full" {...form.register('deliveryCharge')} />
+                      </div>
+                    </div>
+                </div>
+                <Separator />
+
+                <div className="flex justify-between font-semibold text-base">
+                  <span>Total</span>
+                  <span>₹{priceDetails.total.toFixed(2)}</span>
+                </div>
+                
+                <Separator />
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Payment Method *</Label>
+                    <Controller
                         control={form.control}
-                        name="customerId"
+                        name="paymentMethod"
                         render={({ field }) => (
-                          <Select onValueChange={(value) => {
-                              const customer = customers.find(c => c.id === value);
-                              setSelectedCustomer(customer || null);
-                              field.onChange(value);
-                            }} defaultValue={field.value}>
-                            <SelectTrigger className='w-full'>
-                              <SelectValue placeholder="Select a customer" />
-                            </SelectTrigger>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger className="w-3/5 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
                             <SelectContent>
-                              {customers.map((customer) => (
-                                <SelectItem key={customer.id} value={customer.id}>
-                                    <div>
-                                      <p>{customer.name}</p>
-                                      <p className="text-xs text-muted-foreground">{customer.phone}</p>
-                                    </div>
-                                </SelectItem>
-                              ))}
+                              <SelectItem value="cash">Cash</SelectItem>
+                              <SelectItem value="card">Card</SelectItem>
+                              <SelectItem value="online">Online</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
                       />
-                         <CustomerFormDialog 
-                          onSave={handleSaveCustomer}
-                          open={isCustomerDialogOpen}
-                          onOpenChange={setIsCustomerDialogOpen}
-                        >
-                          <Button size="icon" type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
-                            <PlusCircle className="h-4 w-4" />
-                            <span className="sr-only">Add Customer</span>
-                          </Button>
-                        </CustomerFormDialog>
-                    </div>
-                  )}
-                   {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
-                </div>
-              <Separator />
-               <div className="space-y-2 text-sm">
-                 <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{priceDetails.price.toFixed(2)}</span>
                   </div>
+                  {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive text-right -mt-2">{form.formState.errors.paymentMethod.message}</p>}
                   
                   <div className="flex items-center justify-between">
-                      <Label className="text-muted-foreground">Discount</Label>
-                      <div className="flex items-center gap-2 w-3/5">
-                          <Controller
-                              control={form.control}
-                              name="discountType"
-                              render={({ field }) => (
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger className="w-full h-8"><SelectValue placeholder="Type" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="fixed">₹ (Fixed)</SelectItem>
-                                    <SelectItem value="percentage">% (Percent)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                          )}
-                          />
-                          <Input type="number" placeholder="0" className="w-full h-8" {...form.register('discountValue')} />
-                      </div>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Discount Amount</span>
-                    <span className="text-destructive">- ₹{priceDetails.discountAmount.toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <Label className="text-muted-foreground">Delivery Charge</Label>
-                    <div className="w-2/5">
-                      <Input type="number" placeholder="0.00" className="h-8 text-right w-full" {...form.register('deliveryCharge')} />
+                    <Label>Initial Paid</Label>
+                    <div className="w-3/5">
+                      <Input type="number" placeholder="0.00" className="h-9 text-right w-full" {...form.register('initialPaid')}/>
                     </div>
                   </div>
-               </div>
-              <Separator />
-
-              <div className="flex justify-between font-semibold text-base">
-                <span>Total</span>
-                <span>₹{priceDetails.total.toFixed(2)}</span>
-              </div>
-              
-              <Separator />
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Payment Method *</Label>
-                  <Controller
-                      control={form.control}
-                      name="paymentMethod"
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <SelectTrigger className="w-3/5 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="cash">Cash</SelectItem>
-                            <SelectItem value="card">Card</SelectItem>
-                            <SelectItem value="online">Online</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                </div>
-                {form.formState.errors.paymentMethod && <p className="text-sm font-medium text-destructive text-right -mt-2">{form.formState.errors.paymentMethod.message}</p>}
-                
-                <div className="flex items-center justify-between">
-                  <Label>Initial Paid</Label>
-                  <div className="w-3/5">
-                    <Input type="number" placeholder="0.00" className="h-9 text-right w-full" {...form.register('initialPaid')}/>
+                  
+                  <div className="flex justify-between font-semibold text-base bg-secondary/50 p-2 rounded-md">
+                    <span>Remaining</span>
+                    <span>₹{priceDetails.remainingAmount.toFixed(2)}</span>
                   </div>
                 </div>
-                
-                <div className="flex justify-between font-semibold text-base bg-secondary/50 p-2 rounded-md">
-                  <span>Remaining</span>
-                  <span>₹{priceDetails.remainingAmount.toFixed(2)}</span>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting || editingIndex !== null}>
-                {form.formState.isSubmitting ? 'Placing Order...' : 'Place Order'}
-              </Button>
-            </CardFooter>
-          </Card>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting || editingIndex !== null}>
+                  {form.formState.isSubmitting ? 'Placing Order...' : 'Place Order'}
+                </Button>
+              </CardFooter>
+            </Card>
         </div>
       </div>
     </form>
