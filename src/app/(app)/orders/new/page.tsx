@@ -60,7 +60,6 @@ export default function CreateOrderPage() {
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [openCombobox, setOpenCombobox] = useState(false);
   const router = useRouter();
 
   const form = useForm<OrderFormValues>({
@@ -85,12 +84,14 @@ export default function CreateOrderPage() {
     name: 'items',
   });
 
-  const watchedValues = form.watch();
+  const watchedItems = form.watch('items');
+  const discountType = form.watch('discountType');
+  const discountValue = form.watch('discountValue');
+  const deliveryCharge = form.watch('deliveryCharge');
+  const initialPaid = form.watch('initialPaid');
 
   const priceDetails: PriceDetails = useMemo(() => {
-    const { items, discountType, discountValue, deliveryCharge, initialPaid } = watchedValues;
-    
-    const price = (items || []).reduce((total, item) => {
+    const price = (watchedItems || []).reduce((total, item) => {
       const itemTotal = (item.quantity || 0) * (item.rentRate || 0) * (item.numberOfDays || 0);
       return total + itemTotal;
     }, 0);
@@ -108,7 +109,7 @@ export default function CreateOrderPage() {
     const remainingAmount = total - (Number(initialPaid) || 0);
 
     return { price, discountAmount, deliveryCharge: deliveryChargeVal, total, remainingAmount };
-  }, [watchedValues]);
+  }, [watchedItems, discountType, discountValue, deliveryCharge, initialPaid]);
   
   useEffect(() => {
     if (selectedCustomer) {
@@ -252,13 +253,13 @@ export default function CreateOrderPage() {
                 ) : (
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">{products.find(p => p.id === watchedValues.items?.[index]?.productId)?.name || 'Item not selected'}</p>
+                      <p className="font-medium">{products.find(p => p.id === form.getValues(`items.${index}.productId`))?.name || 'Item not selected'}</p>
                       <p className="text-sm text-muted-foreground">
-                        {watchedValues.items?.[index]?.quantity} units x {watchedValues.items?.[index]?.numberOfDays} days @ ₹{(Number(watchedValues.items?.[index]?.rentRate) || 0).toFixed(2)}/day
+                        {form.getValues(`items.${index}.quantity`)} units x {form.getValues(`items.${index}.numberOfDays`)} days @ ₹{(Number(form.getValues(`items.${index}.rentRate`)) || 0).toFixed(2)}/day
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium">₹{((watchedValues.items?.[index]?.quantity || 0) * (Number(watchedValues.items?.[index]?.rentRate) || 0) * (watchedValues.items?.[index]?.numberOfDays || 0)).toFixed(2)}</p>
+                      <p className="font-medium">₹{((form.getValues(`items.${index}.quantity`) || 0) * (Number(form.getValues(`items.${index}.rentRate`)) || 0) * (form.getValues(`items.${index}.numberOfDays`) || 0)).toFixed(2)}</p>
                       <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8" disabled={editingIndex !== null}>
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -293,7 +294,7 @@ export default function CreateOrderPage() {
               />
               <Label htmlFor="pickup-required">Pickup Required</Label>
             </div>
-            {watchedValues.pickupRequired && (
+            {form.watch('pickupRequired') && (
               <div>
                 <Label htmlFor="vehicle">Vehicle Number</Label>
                  <Controller
@@ -366,7 +367,7 @@ export default function CreateOrderPage() {
                             open={isCustomerDialogOpen}
                             onOpenChange={setIsCustomerDialogOpen}
                           >
-                            <Button size="icon" type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
+                            <Button size="icon" type="button" onClick={() => setIsCustomerDialogOpen(true)}>
                               <PlusCircle className="h-4 w-4" />
                               <span className="sr-only">Add Customer</span>
                             </Button>
