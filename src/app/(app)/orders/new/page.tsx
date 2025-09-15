@@ -310,9 +310,8 @@ export default function CreateOrderPage() {
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 overflow-y-auto max-h-[calc(100vh-20rem)]">
+            <CardContent className="space-y-4 overflow-y-auto max-h-[calc(106.9vh-20rem)]">
               <div>
-                <Label>Customer *</Label>
                 {selectedCustomer ? (
                   <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
                     <div>
@@ -416,7 +415,7 @@ export default function CreateOrderPage() {
                     name="paymentMethod"
                     render={({ field }) => (
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <SelectTrigger className="w-3/5 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
+                        <SelectTrigger className="w-2/5 h-9"><SelectValue placeholder="Select" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="cash">Cash</SelectItem>
                           <SelectItem value="card">Card</SelectItem>
@@ -430,7 +429,7 @@ export default function CreateOrderPage() {
                 
                 <div className="flex items-center justify-between">
                   <Label>Initial Paid</Label>
-                  <div className="w-3/5">
+                  <div className="w-2/5">
                     <Input type="number" placeholder="0.00" className="h-9 text-right w-full" {...form.register('initialPaid')}/>
                   </div>
                 </div>
