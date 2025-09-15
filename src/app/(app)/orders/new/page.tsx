@@ -15,7 +15,16 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Edit, Check } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, Check, ChevronsUpDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
@@ -51,6 +60,7 @@ export default function CreateOrderPage() {
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [openCombobox, setOpenCombobox] = useState(false);
   const router = useRouter();
 
   const form = useForm<OrderFormValues>({
@@ -75,32 +85,34 @@ export default function CreateOrderPage() {
     name: 'items',
   });
 
-  const watchItems = form.watch('items');
-  const watchDiscountType = form.watch('discountType');
-  const watchDiscountValue = form.watch('discountValue');
-  const watchDeliveryCharge = form.watch('deliveryCharge');
-  const watchInitialPaid = form.watch('initialPaid');
+  const watch = form.watch;
 
   const priceDetails: PriceDetails = useMemo(() => {
-    const price = watchItems.reduce((total, item) => {
+    const items = watch('items');
+    const discountType = watch('discountType');
+    const discountValue = watch('discountValue');
+    const deliveryCharge = watch('deliveryCharge');
+    const initialPaid = watch('initialPaid');
+
+    const price = items.reduce((total, item) => {
       const itemTotal = (item.quantity || 0) * (item.rentRate || 0) * (item.numberOfDays || 0);
       return total + itemTotal;
     }, 0);
 
     let discountAmount = 0;
-    const discountVal = Number(watchDiscountValue) || 0;
-    if (watchDiscountType === 'fixed') {
+    const discountVal = Number(discountValue) || 0;
+    if (discountType === 'fixed') {
       discountAmount = discountVal;
-    } else if (watchDiscountType === 'percentage') {
+    } else if (discountType === 'percentage') {
       discountAmount = price * (discountVal / 100);
     }
     
-    const deliveryCharge = Number(watchDeliveryCharge) || 0;
-    const total = price - discountAmount + deliveryCharge;
-    const remainingAmount = total - (Number(watchInitialPaid) || 0);
+    const charge = Number(deliveryCharge) || 0;
+    const total = price - discountAmount + charge;
+    const remainingAmount = total - (Number(initialPaid) || 0);
 
-    return { price, discountAmount, deliveryCharge, total, remainingAmount };
-  }, [watchItems, watchDiscountType, watchDiscountValue, watchDeliveryCharge, watchInitialPaid]);
+    return { price, discountAmount, deliveryCharge: charge, total, remainingAmount };
+  }, [watch]);
   
   useEffect(() => {
     if (selectedCustomer) {
@@ -244,13 +256,13 @@ export default function CreateOrderPage() {
                 ) : (
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">{products.find(p => p.id === watchItems[index].productId)?.name || 'Item not selected'}</p>
+                      <p className="font-medium">{products.find(p => p.id === watch('items')[index].productId)?.name || 'Item not selected'}</p>
                       <p className="text-sm text-muted-foreground">
-                        {watchItems[index].quantity} units x {watchItems[index].numberOfDays} days @ ₹{(Number(watchItems[index].rentRate) || 0).toFixed(2)}/day
+                        {watch('items')[index].quantity} units x {watch('items')[index].numberOfDays} days @ ₹{(Number(watch('items')[index].rentRate) || 0).toFixed(2)}/day
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium">₹{((watchItems[index].quantity || 0) * (Number(watchItems[index].rentRate) || 0) * (watchItems[index].numberOfDays || 0)).toFixed(2)}</p>
+                      <p className="font-medium">₹{((watch('items')[index].quantity || 0) * (Number(watch('items')[index].rentRate) || 0) * (watch('items')[index].numberOfDays || 0)).toFixed(2)}</p>
                       <Button type="button" variant="ghost" size="icon" onClick={() => handleEditItem(index)} className="h-8 w-8" disabled={editingIndex !== null}>
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -285,7 +297,7 @@ export default function CreateOrderPage() {
               />
               <Label htmlFor="pickup-required">Pickup Required</Label>
             </div>
-            {form.watch('pickupRequired') && (
+            {watch('pickupRequired') && (
               <div>
                 <Label htmlFor="vehicle">Vehicle Number</Label>
                  <Controller
@@ -334,24 +346,21 @@ export default function CreateOrderPage() {
                         control={form.control}
                         name="customerId"
                         render={({ field }) => (
-                           <Select 
-                            onValueChange={(value) => {
+                          <Select onValueChange={(value) => {
                               const customer = customers.find(c => c.id === value);
                               setSelectedCustomer(customer || null);
                               field.onChange(value);
-                            }} 
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger className="w-full">
+                            }} defaultValue={field.value}>
+                            <SelectTrigger className='w-full'>
                               <SelectValue placeholder="Select a customer" />
                             </SelectTrigger>
                             <SelectContent>
                               {customers.map((customer) => (
                                 <SelectItem key={customer.id} value={customer.id}>
-                                  <div>
-                                    <p>{customer.name}</p>
-                                    <p className="text-xs text-muted-foreground">{customer.phone}</p>
-                                  </div>
+                                    <div>
+                                      <p>{customer.name}</p>
+                                      <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                    </div>
                                 </SelectItem>
                               ))}
                             </SelectContent>
