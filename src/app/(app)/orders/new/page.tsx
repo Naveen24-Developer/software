@@ -19,10 +19,6 @@ import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/dat
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
 import { Switch } from '@/components/ui/switch';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
 
 const orderItemSchema = z.object({
   productId: z.string().min(1, 'Product is required'),
@@ -198,49 +194,53 @@ export default function CreateOrderPage() {
               <div key={field.id} className="p-4 border rounded-lg space-y-4 bg-secondary/20">
                 {editingIndex === index ? (
                    <div className="space-y-4">
-                      <div>
-                          <Label>Product *</Label>
-                          <Controller
-                              control={form.control}
-                              name={`items.${index}.productId`}
-                              render={({ field: controllerField }) => (
-                                  <Select 
-                                  onValueChange={(value) => {
-                                      const product = products.find(p => p.id === value);
-                                      controllerField.onChange(value);
-                                      form.setValue(`items.${index}.productRate`, product?.rate || 0);
-                                      form.setValue(`items.${index}.rentRate`, product?.rate || 0);
-                                  }} 
-                                  defaultValue={controllerField.value}
-                                  >
-                                  <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
-                                  <SelectContent>
-                                      {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                  </SelectContent>
-                                  </Select>
-                              )}
-                          />
-                          {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.productId?.message}</p>}
-                      </div>
-                      <div>
-                          <Label>Quantity *</Label>
-                          <Input type="number" {...form.register(`items.${index}.quantity`)} />
-                          {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
-                      </div>
-                      <div>
-                          <Label>Product Rate</Label>
-                          <Input {...form.register(`items.${index}.productRate`)} disabled />
-                      </div>
-                      <div>
-                          <Label>Rent Rate *</Label>
-                          <Input type="number" step="0.01" {...form.register(`items.${index}.rentRate`)} />
-                          {form.formState.errors.items?.[index]?.rentRate && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.rentRate?.message}</p>}
-                      </div>
-                      <div>
-                          <Label>No. of Days *</Label>
-                          <Input type="number" {...form.register(`items.${index}.numberOfDays`)} />
-                          {form.formState.errors.items?.[index]?.numberOfDays && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.numberOfDays?.message}</p>}
-                      </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <Label>Product *</Label>
+                            <Controller
+                                control={form.control}
+                                name={`items.${index}.productId`}
+                                render={({ field: controllerField }) => (
+                                    <Select 
+                                    onValueChange={(value) => {
+                                        const product = products.find(p => p.id === value);
+                                        controllerField.onChange(value);
+                                        form.setValue(`items.${index}.productRate`, product?.rate || 0);
+                                        form.setValue(`items.${index}.rentRate`, product?.rate || 0);
+                                    }} 
+                                    defaultValue={controllerField.value}
+                                    >
+                                    <SelectTrigger><SelectValue placeholder="Select an item" /></SelectTrigger>
+                                    <SelectContent>
+                                        {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                    </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {form.formState.errors.items?.[index]?.productId && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.productId?.message}</p>}
+                        </div>
+                         <div>
+                            <Label>Quantity *</Label>
+                            <Input type="number" {...form.register(`items.${index}.quantity`)} />
+                             {form.formState.errors.items?.[index]?.quantity && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.quantity?.message}</p>}
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <Label>Product Rate</Label>
+                            <Input {...form.register(`items.${index}.productRate`)} disabled />
+                        </div>
+                        <div>
+                            <Label>Rent Rate *</Label>
+                            <Input type="number" step="0.01" {...form.register(`items.${index}.rentRate`)} />
+                            {form.formState.errors.items?.[index]?.rentRate && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.rentRate?.message}</p>}
+                        </div>
+                        <div>
+                            <Label>No. of Days *</Label>
+                            <Input type="number" {...form.register(`items.${index}.numberOfDays`)} />
+                            {form.formState.errors.items?.[index]?.numberOfDays && <p className="text-sm font-medium text-destructive mt-1">{form.formState.errors.items?.[index]?.numberOfDays?.message}</p>}
+                        </div>
+                    </div>
                     <div className='flex items-center gap-2'>
                         <Button type="button" onClick={() => handleUpdateItem(index)}>Done</Button>
                         <Button type="button" variant="outline" onClick={() => { remove(index); setEditingIndex(null); }}>Cancel</Button>
@@ -353,7 +353,7 @@ export default function CreateOrderPage() {
                             <SelectContent>
                               {customers.map((customer) => (
                                 <SelectItem key={customer.id} value={customer.id}>
-                                  <div>
+                                  <div className="flex flex-col">
                                     <p>{customer.name}</p>
                                     <p className="text-xs text-muted-foreground">{customer.phone}</p>
                                   </div>
@@ -469,5 +469,7 @@ export default function CreateOrderPage() {
     </form>
   );
 }
+
+    
 
     
