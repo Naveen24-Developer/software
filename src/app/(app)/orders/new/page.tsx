@@ -60,7 +60,6 @@ export default function CreateOrderPage() {
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [openCombobox, setOpenCombobox] = useState(false);
   const router = useRouter();
 
   const form = useForm<OrderFormValues>({
@@ -322,13 +321,28 @@ export default function CreateOrderPage() {
       </div>
 
       <div className="lg:col-span-1 space-y-8">
+        <div className="sticky top-20">
           <Card>
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div>
-                  <Label>Customer *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Customer *</Label>
+                     {!selectedCustomer && (
+                        <CustomerFormDialog 
+                          onSave={handleSaveCustomer}
+                          open={isCustomerDialogOpen}
+                          onOpenChange={setIsCustomerDialogOpen}
+                        >
+                          <Button size="sm" type="button" variant="link" onClick={() => setIsCustomerDialogOpen(true)} className="h-auto p-0">
+                            <PlusCircle className="mr-1 h-3 w-3" />
+                            Add New
+                          </Button>
+                        </CustomerFormDialog>
+                      )}
+                  </div>
                   {selectedCustomer ? (
                     <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
                       <div>
@@ -338,71 +352,29 @@ export default function CreateOrderPage() {
                       <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>Change</Button>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-2 mt-2">
                        <Controller
                         control={form.control}
                         name="customerId"
                         render={({ field }) => (
-                          <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                aria-expanded={openCombobox}
-                                className="w-full justify-between"
-                              >
-                                {field.value
-                                  ? customers.find((customer) => customer.id === field.value)?.name
-                                  : 'Select a customer'}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                              <Command>
-                                <CommandInput placeholder="Search customer..." />
-                                <CommandList>
-                                  <CommandEmpty>No customer found.</CommandEmpty>
-                                  <CommandGroup>
-                                    {customers.map((customer) => (
-                                      <CommandItem
-                                        key={customer.id}
-                                        value={customer.name}
-                                        onSelect={() => {
-                                          setSelectedCustomer(customer);
-                                          field.onChange(customer.id);
-                                          setOpenCombobox(false);
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            'mr-2 h-4 w-4',
-                                            field.value === customer.id ? 'opacity-100' : 'opacity-0'
-                                          )}
-                                        />
-                                        <div>
-                                          <p>{customer.name}</p>
-                                          <p className="text-xs text-muted-foreground">{customer.phone}</p>
-                                        </div>
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
+                          <Select onValueChange={(value) => {
+                              const customer = customers.find(c => c.id === value);
+                              setSelectedCustomer(customer || null);
+                              field.onChange(value);
+                          }} value={field.value}>
+                            <SelectTrigger className="mt-2"><SelectValue placeholder="Select a customer" /></SelectTrigger>
+                            <SelectContent>
+                              {customers.map((customer) => (
+                                <SelectItem key={customer.id} value={customer.id}>
+                                    <div>
+                                      <p>{customer.name}</p>
+                                      <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                    </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         )}
                       />
-                         <CustomerFormDialog 
-                          onSave={handleSaveCustomer}
-                          open={isCustomerDialogOpen}
-                          onOpenChange={setIsCustomerDialogOpen}
-                        >
-                          <Button size="icon" type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
-                            <PlusCircle className="h-4 w-4" />
-                            <span className="sr-only">Add Customer</span>
-                          </Button>
-                        </CustomerFormDialog>
-                    </div>
                   )}
                    {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
                 </div>
@@ -493,6 +465,7 @@ export default function CreateOrderPage() {
               </Button>
             </CardFooter>
           </Card>
+        </div>
         </div>
     </form>
   );
