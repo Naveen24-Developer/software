@@ -15,16 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2, Edit, Check, ChevronsUpDown } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { PlusCircle, Trash2, Edit, Check } from 'lucide-react';
 import { mockCustomers, mockProducts, mockVehicles, mockOrders } from '@/lib/data';
 import type { Customer, Product, Order, PriceDetails, OrderItem } from '@/lib/types';
 import CustomerFormDialog from '@/app/(app)/customers/customer-form-dialog';
@@ -328,21 +319,7 @@ export default function CreateOrderPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div>
-                  <div className="flex items-center justify-between">
-                    <Label>Customer *</Label>
-                     {!selectedCustomer && (
-                        <CustomerFormDialog 
-                          onSave={handleSaveCustomer}
-                          open={isCustomerDialogOpen}
-                          onOpenChange={setIsCustomerDialogOpen}
-                        >
-                          <Button size="sm" type="button" variant="link" onClick={() => setIsCustomerDialogOpen(true)} className="h-auto p-0">
-                            <PlusCircle className="mr-1 h-3 w-3" />
-                            Add New
-                          </Button>
-                        </CustomerFormDialog>
-                      )}
-                  </div>
+                  <Label>Customer *</Label>
                   {selectedCustomer ? (
                     <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">
                       <div>
@@ -352,29 +329,46 @@ export default function CreateOrderPage() {
                       <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>Change</Button>
                     </div>
                   ) : (
+                    <div className="flex items-start gap-2 mt-2">
                        <Controller
                         control={form.control}
                         name="customerId"
                         render={({ field }) => (
-                          <Select onValueChange={(value) => {
+                           <Select 
+                            onValueChange={(value) => {
                               const customer = customers.find(c => c.id === value);
                               setSelectedCustomer(customer || null);
                               field.onChange(value);
-                          }} value={field.value}>
-                            <SelectTrigger className="mt-2"><SelectValue placeholder="Select a customer" /></SelectTrigger>
+                            }} 
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a customer" />
+                            </SelectTrigger>
                             <SelectContent>
                               {customers.map((customer) => (
                                 <SelectItem key={customer.id} value={customer.id}>
-                                    <div>
-                                      <p>{customer.name}</p>
-                                      <p className="text-xs text-muted-foreground">{customer.phone}</p>
-                                    </div>
+                                  <div>
+                                    <p>{customer.name}</p>
+                                    <p className="text-xs text-muted-foreground">{customer.phone}</p>
+                                  </div>
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         )}
                       />
+                         <CustomerFormDialog 
+                          onSave={handleSaveCustomer}
+                          open={isCustomerDialogOpen}
+                          onOpenChange={setIsCustomerDialogOpen}
+                        >
+                          <Button size="icon" type="button" variant="outline" onClick={() => setIsCustomerDialogOpen(true)}>
+                            <PlusCircle className="h-4 w-4" />
+                            <span className="sr-only">Add Customer</span>
+                          </Button>
+                        </CustomerFormDialog>
+                    </div>
                   )}
                    {form.formState.errors.customerId && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.customerId.message}</p>}
                 </div>
@@ -466,7 +460,7 @@ export default function CreateOrderPage() {
             </CardFooter>
           </Card>
         </div>
-        </div>
+      </div>
     </form>
   );
 }
