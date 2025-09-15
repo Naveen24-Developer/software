@@ -254,7 +254,7 @@ export default function ReportsPage() {
             </TableHeader>
             <TableBody>
               {filteredOrders.map((order, index) => (
-                <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => setOpenOrderId(prev => prev === order.id ? null : order.id)}>
+                <Collapsible key={order.id} open={openOrderId === order.id} onOpenChange={() => setOpenOrderId(prev => prev === order.id ? null : order.id)} asChild>
                   <>
                     <TableRow className="cursor-pointer">
                       <TableCell className="print:hidden">
