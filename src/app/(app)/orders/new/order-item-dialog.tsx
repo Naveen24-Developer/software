@@ -77,7 +77,9 @@ export default function OrderItemDialog({ isOpen, onOpenChange, onSave, products
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
+            
+            <div className="grid grid-rows-4 gap-4">
+              <FormField
               control={form.control}
               name="productId"
               render={({ field }) => (
@@ -107,7 +109,6 @@ export default function OrderItemDialog({ isOpen, onOpenChange, onSave, products
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="quantity"

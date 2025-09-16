@@ -305,7 +305,7 @@ export default function CreateOrderPage() {
                               ))}
                             </SelectContent>
                           </Select>
-                        )}
+                        )}    
                       />
                       <CustomerFormDialog 
                         onSave={handleSaveCustomer}
