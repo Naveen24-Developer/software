@@ -178,7 +178,7 @@ export default function CreateOrderPage() {
         products={products}
         item={editingItem?.data}
       />
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:items-start">
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -272,7 +272,7 @@ export default function CreateOrderPage() {
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 overflow-y-auto max-h-[calc(106vh-20rem)]">
+              <CardContent className="space-y-4 overflow-y-auto max-h-[calc(100vh-15rem)]">
                 <div>
                   {selectedCustomer ? (
                     <div className="flex items-center justify-between mt-2 p-3 border rounded-lg bg-secondary/30">

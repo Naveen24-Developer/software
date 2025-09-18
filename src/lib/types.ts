@@ -1,4 +1,4 @@
-export type Customer = {
+export type CustomerProps = {
   id: string;
   name: string;
   phone: string;
@@ -34,7 +34,7 @@ export type PriceDetails = {
 
 export type Order = {
   id: string;
-  customer: Customer;
+  customer: CustomerProps;
   items: OrderItem[];
   priceDetails: PriceDetails;
   deliveryAddress: string;

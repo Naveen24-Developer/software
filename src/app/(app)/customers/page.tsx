@@ -8,30 +8,43 @@ import { PlusCircle, Search, MoreHorizontal } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import type { Customer } from '@/lib/types';
+import type { CustomerProps } from '@/lib/types';
 import CustomerFormDialog from './customer-form-dialog';
 import DeleteCustomerAlert from './delete-customer-alert';
 import { useCustomers } from '@/contexts/customer-context';
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+function useVendorFetch() {
+  const { data, error, isLoading } = useSWR('/api/customers', fetcher);
+
+  return {
+    vendorsData: data,
+    isLoading,
+    isError: error
+  };
+}
 
 export default function CustomersPage() {
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-
-  const handleSaveCustomer = (customerData: Omit<Customer, 'id' | 'createdAt'>, id?: string) => {
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerProps | null>(null);
+const {vendorsData}=useVendorFetch();
+  const handleSaveCustomer = (customerData: Omit<CustomerProps, 'id' | 'createdAt'>, id?: string) => {
     if (id) {
       updateCustomer(id, customerData);
     } else {
       addCustomer(customerData);
     }
   };
-
+console.log("testing vendorsData",vendorsData)
   const handleDeleteCustomer = (id: string) => {
     deleteCustomer(id);
   };
   
-  const handleOpenDialog = (customer: Customer | null = null) => {
+  const handleOpenDialog = (customer: CustomerProps | null = null) => {
     setSelectedCustomer(customer);
     setIsDialogOpen(true);
   };
